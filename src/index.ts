@@ -1,5 +1,4 @@
 // =============================================================================
-// poze.ts — single-file build
 // TypeScript templating & styling engine backed by UnoCSS + presetWind4
 // https://standardschema.dev  |  https://unocss.dev/presets/wind4
 // =============================================================================
@@ -56,7 +55,7 @@ export declare namespace StandardSchemaV1 {
 // Validation
 // ---------------------------------------------------------------------------
 
-export class PozeValidationError extends Error {
+export class PoseValidationError extends Error {
   readonly issues: ReadonlyArray<StandardSchemaV1.Issue>;
   constructor(issues: ReadonlyArray<StandardSchemaV1.Issue>) {
     const summary = issues
@@ -65,8 +64,8 @@ export class PozeValidationError extends Error {
         return path ? `${path}: ${i.message}` : i.message;
       })
       .join("; ");
-    super(`Poze validation failed — ${summary}`);
-    this.name = "PozeValidationError";
+    super(`Pose validation failed — ${summary}`);
+    this.name = "PoseValidationError";
     this.issues = issues;
   }
 }
@@ -83,7 +82,7 @@ function runSchema<S extends StandardSchemaV1>(
 }
 
 function unwrapResult<O>(result: StandardSchemaV1.Result<O>): O {
-  if (result.issues !== undefined) throw new PozeValidationError(result.issues);
+  if (result.issues !== undefined) throw new PoseValidationError(result.issues);
   return (result as StandardSchemaV1.SuccessResult<O>).value;
 }
 
@@ -96,8 +95,8 @@ export type Dyn<TProps, T> = T | ((props: TProps) => T);
 export type ChildValue =
   | string
   | number
-  | PozElement<any, any>
-  | Array<string | number | PozElement<any, any>>;
+  | PoseElement<any, any>
+  | Array<string | number | PoseElement<any, any>>;
 
 export type Child<TProps> = ChildValue | ((props: TProps) => ChildValue);
 
@@ -114,10 +113,10 @@ type CallArgs<TProps extends Record<string, unknown>> = [keyof TProps] extends [
 type ClassEntry<TProps> = string | ((props: TProps) => string);
 
 // ---------------------------------------------------------------------------
-// PozElement interface
+// PoseElement interface
 // ---------------------------------------------------------------------------
 
-export interface PozElement<
+export interface PoseElement<
   TProps extends Record<string, unknown>,
   TSchema extends StandardSchemaV1 | undefined = undefined,
 > {
@@ -131,793 +130,793 @@ export interface PozElement<
    */
   input<S extends StandardSchemaV1<any, Record<string, unknown>>>(
     schema: S,
-  ): PozElement<StandardSchemaV1.InferOutput<S>, S>;
+  ): PoseElement<StandardSchemaV1.InferOutput<S>, S>;
 
   // ── Display ──────────────────────────────────────────────────────────────
   /** block */
-  block(): PozElement<TProps, TSchema>;
+  block(): PoseElement<TProps, TSchema>;
   /** inline */
-  inline(): PozElement<TProps, TSchema>;
+  inline(): PoseElement<TProps, TSchema>;
   /** inline-block */
-  inline_block(): PozElement<TProps, TSchema>;
+  inline_block(): PoseElement<TProps, TSchema>;
   /** flex */
-  flex(): PozElement<TProps, TSchema>;
+  flex(): PoseElement<TProps, TSchema>;
   /** inline-flex */
-  inline_flex(): PozElement<TProps, TSchema>;
+  inline_flex(): PoseElement<TProps, TSchema>;
   /** grid */
-  grid(): PozElement<TProps, TSchema>;
+  grid(): PoseElement<TProps, TSchema>;
   /** inline-grid */
-  inline_grid(): PozElement<TProps, TSchema>;
+  inline_grid(): PoseElement<TProps, TSchema>;
   /** flow-root */
-  flow_root(): PozElement<TProps, TSchema>;
+  flow_root(): PoseElement<TProps, TSchema>;
   /** hidden (display:none) */
-  hidden(): PozElement<TProps, TSchema>;
+  hidden(): PoseElement<TProps, TSchema>;
   /** contents */
-  contents(): PozElement<TProps, TSchema>;
+  contents(): PoseElement<TProps, TSchema>;
   /** table */
-  table(): PozElement<TProps, TSchema>;
+  table(): PoseElement<TProps, TSchema>;
   /** table-caption */
-  table_caption(): PozElement<TProps, TSchema>;
+  table_caption(): PoseElement<TProps, TSchema>;
   /** table-cell */
-  table_cell(): PozElement<TProps, TSchema>;
+  table_cell(): PoseElement<TProps, TSchema>;
   /** table-column */
-  table_column(): PozElement<TProps, TSchema>;
+  table_column(): PoseElement<TProps, TSchema>;
   /** table-column-group */
-  table_column_group(): PozElement<TProps, TSchema>;
+  table_column_group(): PoseElement<TProps, TSchema>;
   /** table-footer-group */
-  table_footer_group(): PozElement<TProps, TSchema>;
+  table_footer_group(): PoseElement<TProps, TSchema>;
   /** table-header-group */
-  table_header_group(): PozElement<TProps, TSchema>;
+  table_header_group(): PoseElement<TProps, TSchema>;
   /** table-row-group */
-  table_row_group(): PozElement<TProps, TSchema>;
+  table_row_group(): PoseElement<TProps, TSchema>;
   /** table-row */
-  table_row(): PozElement<TProps, TSchema>;
+  table_row(): PoseElement<TProps, TSchema>;
 
   // ── Flexbox ──────────────────────────────────────────────────────────────
   /** flex-row */
-  flex_row(): PozElement<TProps, TSchema>;
+  flex_row(): PoseElement<TProps, TSchema>;
   /** flex-row-reverse */
-  flex_row_reverse(): PozElement<TProps, TSchema>;
+  flex_row_reverse(): PoseElement<TProps, TSchema>;
   /** flex-col */
-  flex_col(): PozElement<TProps, TSchema>;
+  flex_col(): PoseElement<TProps, TSchema>;
   /** flex-col-reverse */
-  flex_col_reverse(): PozElement<TProps, TSchema>;
+  flex_col_reverse(): PoseElement<TProps, TSchema>;
   /** flex-wrap */
-  flex_wrap(): PozElement<TProps, TSchema>;
+  flex_wrap(): PoseElement<TProps, TSchema>;
   /** flex-wrap-reverse */
-  flex_wrap_reverse(): PozElement<TProps, TSchema>;
+  flex_wrap_reverse(): PoseElement<TProps, TSchema>;
   /** flex-nowrap */
-  flex_nowrap(): PozElement<TProps, TSchema>;
+  flex_nowrap(): PoseElement<TProps, TSchema>;
   /** flex-1 */
-  flex_1(): PozElement<TProps, TSchema>;
+  flex_1(): PoseElement<TProps, TSchema>;
   /** flex-auto */
-  flex_auto(): PozElement<TProps, TSchema>;
+  flex_auto(): PoseElement<TProps, TSchema>;
   /** flex-initial */
-  flex_initial(): PozElement<TProps, TSchema>;
+  flex_initial(): PoseElement<TProps, TSchema>;
   /** flex-none */
-  flex_none(): PozElement<TProps, TSchema>;
+  flex_none(): PoseElement<TProps, TSchema>;
   /** grow / flex-grow */
-  grow(): PozElement<TProps, TSchema>;
+  grow(): PoseElement<TProps, TSchema>;
   /** grow-0 / flex-grow-0 */
-  grow_0(): PozElement<TProps, TSchema>;
+  grow_0(): PoseElement<TProps, TSchema>;
   /** shrink / flex-shrink */
-  shrink(): PozElement<TProps, TSchema>;
+  shrink(): PoseElement<TProps, TSchema>;
   /** shrink-0 / flex-shrink-0 */
-  shrink_0(): PozElement<TProps, TSchema>;
+  shrink_0(): PoseElement<TProps, TSchema>;
   /** order-{n} */
-  order(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  order(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** order-first */
-  order_first(): PozElement<TProps, TSchema>;
+  order_first(): PoseElement<TProps, TSchema>;
   /** order-last */
-  order_last(): PozElement<TProps, TSchema>;
+  order_last(): PoseElement<TProps, TSchema>;
   /** order-none */
-  order_none(): PozElement<TProps, TSchema>;
+  order_none(): PoseElement<TProps, TSchema>;
 
   // ── Grid ─────────────────────────────────────────────────────────────────
   /** grid-cols-{n} */
-  grid_cols(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  grid_cols(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** grid-rows-{n} */
-  grid_rows(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  grid_rows(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** col-span-{n} */
-  col_span(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  col_span(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** col-start-{n} */
-  col_start(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  col_start(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** col-end-{n} */
-  col_end(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  col_end(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** row-span-{n} */
-  row_span(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  row_span(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** row-start-{n} */
-  row_start(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  row_start(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** row-end-{n} */
-  row_end(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  row_end(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** grid-flow-row */
-  grid_flow_row(): PozElement<TProps, TSchema>;
+  grid_flow_row(): PoseElement<TProps, TSchema>;
   /** grid-flow-col */
-  grid_flow_col(): PozElement<TProps, TSchema>;
+  grid_flow_col(): PoseElement<TProps, TSchema>;
   /** grid-flow-dense */
-  grid_flow_dense(): PozElement<TProps, TSchema>;
+  grid_flow_dense(): PoseElement<TProps, TSchema>;
   /** auto-cols-{value} */
-  auto_cols(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  auto_cols(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** auto-rows-{value} */
-  auto_rows(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  auto_rows(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Alignment ────────────────────────────────────────────────────────────
   /** justify-start */
-  justify_start(): PozElement<TProps, TSchema>;
+  justify_start(): PoseElement<TProps, TSchema>;
   /** justify-end */
-  justify_end(): PozElement<TProps, TSchema>;
+  justify_end(): PoseElement<TProps, TSchema>;
   /** justify-center */
-  justify_center(): PozElement<TProps, TSchema>;
+  justify_center(): PoseElement<TProps, TSchema>;
   /** justify-between */
-  justify_between(): PozElement<TProps, TSchema>;
+  justify_between(): PoseElement<TProps, TSchema>;
   /** justify-around */
-  justify_around(): PozElement<TProps, TSchema>;
+  justify_around(): PoseElement<TProps, TSchema>;
   /** justify-evenly */
-  justify_evenly(): PozElement<TProps, TSchema>;
+  justify_evenly(): PoseElement<TProps, TSchema>;
   /** justify-items-start */
-  justify_items_start(): PozElement<TProps, TSchema>;
+  justify_items_start(): PoseElement<TProps, TSchema>;
   /** justify-items-end */
-  justify_items_end(): PozElement<TProps, TSchema>;
+  justify_items_end(): PoseElement<TProps, TSchema>;
   /** justify-items-center */
-  justify_items_center(): PozElement<TProps, TSchema>;
+  justify_items_center(): PoseElement<TProps, TSchema>;
   /** justify-items-stretch */
-  justify_items_stretch(): PozElement<TProps, TSchema>;
+  justify_items_stretch(): PoseElement<TProps, TSchema>;
   /** justify-self-auto */
-  justify_self_auto(): PozElement<TProps, TSchema>;
+  justify_self_auto(): PoseElement<TProps, TSchema>;
   /** justify-self-start */
-  justify_self_start(): PozElement<TProps, TSchema>;
+  justify_self_start(): PoseElement<TProps, TSchema>;
   /** justify-self-end */
-  justify_self_end(): PozElement<TProps, TSchema>;
+  justify_self_end(): PoseElement<TProps, TSchema>;
   /** justify-self-center */
-  justify_self_center(): PozElement<TProps, TSchema>;
+  justify_self_center(): PoseElement<TProps, TSchema>;
   /** justify-self-stretch */
-  justify_self_stretch(): PozElement<TProps, TSchema>;
+  justify_self_stretch(): PoseElement<TProps, TSchema>;
   /** items-start */
-  items_start(): PozElement<TProps, TSchema>;
+  items_start(): PoseElement<TProps, TSchema>;
   /** items-end */
-  items_end(): PozElement<TProps, TSchema>;
+  items_end(): PoseElement<TProps, TSchema>;
   /** items-center */
-  items_center(): PozElement<TProps, TSchema>;
+  items_center(): PoseElement<TProps, TSchema>;
   /** items-stretch */
-  items_stretch(): PozElement<TProps, TSchema>;
+  items_stretch(): PoseElement<TProps, TSchema>;
   /** items-baseline */
-  items_baseline(): PozElement<TProps, TSchema>;
+  items_baseline(): PoseElement<TProps, TSchema>;
   /** self-auto */
-  self_auto(): PozElement<TProps, TSchema>;
+  self_auto(): PoseElement<TProps, TSchema>;
   /** self-start */
-  self_start(): PozElement<TProps, TSchema>;
+  self_start(): PoseElement<TProps, TSchema>;
   /** self-end */
-  self_end(): PozElement<TProps, TSchema>;
+  self_end(): PoseElement<TProps, TSchema>;
   /** self-center */
-  self_center(): PozElement<TProps, TSchema>;
+  self_center(): PoseElement<TProps, TSchema>;
   /** self-stretch */
-  self_stretch(): PozElement<TProps, TSchema>;
+  self_stretch(): PoseElement<TProps, TSchema>;
   /** self-baseline */
-  self_baseline(): PozElement<TProps, TSchema>;
+  self_baseline(): PoseElement<TProps, TSchema>;
   /** content-start */
-  content_start(): PozElement<TProps, TSchema>;
+  content_start(): PoseElement<TProps, TSchema>;
   /** content-end */
-  content_end(): PozElement<TProps, TSchema>;
+  content_end(): PoseElement<TProps, TSchema>;
   /** content-center */
-  content_center(): PozElement<TProps, TSchema>;
+  content_center(): PoseElement<TProps, TSchema>;
   /** content-between */
-  content_between(): PozElement<TProps, TSchema>;
+  content_between(): PoseElement<TProps, TSchema>;
   /** content-around */
-  content_around(): PozElement<TProps, TSchema>;
+  content_around(): PoseElement<TProps, TSchema>;
   /** content-evenly */
-  content_evenly(): PozElement<TProps, TSchema>;
+  content_evenly(): PoseElement<TProps, TSchema>;
   /** place-content-{value} */
-  place_content(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  place_content(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** place-items-{value} */
-  place_items(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  place_items(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** place-self-{value} */
-  place_self(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  place_self(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Spacing ──────────────────────────────────────────────────────────────
   /** gap-{n} */
-  gap(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
-  gap_0(): PozElement<TProps, TSchema>;
-  gap_1(): PozElement<TProps, TSchema>;
-  gap_2(): PozElement<TProps, TSchema>;
-  gap_3(): PozElement<TProps, TSchema>;
-  gap_4(): PozElement<TProps, TSchema>;
-  gap_5(): PozElement<TProps, TSchema>;
-  gap_6(): PozElement<TProps, TSchema>;
-  gap_7(): PozElement<TProps, TSchema>;
-  gap_8(): PozElement<TProps, TSchema>;
+  gap(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
+  gap_0(): PoseElement<TProps, TSchema>;
+  gap_1(): PoseElement<TProps, TSchema>;
+  gap_2(): PoseElement<TProps, TSchema>;
+  gap_3(): PoseElement<TProps, TSchema>;
+  gap_4(): PoseElement<TProps, TSchema>;
+  gap_5(): PoseElement<TProps, TSchema>;
+  gap_6(): PoseElement<TProps, TSchema>;
+  gap_7(): PoseElement<TProps, TSchema>;
+  gap_8(): PoseElement<TProps, TSchema>;
   /** gap-x-{n} */
-  gap_x(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  gap_x(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** gap-y-{n} */
-  gap_y(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  gap_y(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** space-x-{n} — margin between horizontal children */
-  space_x(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  space_x(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** space-y-{n} — margin between vertical children */
-  space_y(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  space_y(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** space-x-reverse */
-  space_x_reverse(): PozElement<TProps, TSchema>;
+  space_x_reverse(): PoseElement<TProps, TSchema>;
   /** space-y-reverse */
-  space_y_reverse(): PozElement<TProps, TSchema>;
+  space_y_reverse(): PoseElement<TProps, TSchema>;
   /** p-{n} */
-  p(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  p(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** px-{n} */
-  px(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  px(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** py-{n} */
-  py(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  py(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** pt-{n} */
-  pt(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  pt(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** pr-{n} */
-  pr(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  pr(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** pb-{n} */
-  pb(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  pb(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** pl-{n} */
-  pl(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  pl(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** m-{n} */
-  m(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  m(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** mx-{n} */
-  mx(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  mx(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** my-{n} */
-  my(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  my(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** mt-{n} */
-  mt(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  mt(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** mr-{n} */
-  mr(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  mr(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** mb-{n} */
-  mb(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  mb(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** ml-{n} */
-  ml(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  ml(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** m-auto */
-  m_auto(): PozElement<TProps, TSchema>;
+  m_auto(): PoseElement<TProps, TSchema>;
   /** mx-auto */
-  mx_auto(): PozElement<TProps, TSchema>;
+  mx_auto(): PoseElement<TProps, TSchema>;
   /** my-auto */
-  my_auto(): PozElement<TProps, TSchema>;
+  my_auto(): PoseElement<TProps, TSchema>;
 
   // ── Sizing ───────────────────────────────────────────────────────────────
   /** size-{n} */
-  size(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  size(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** w-{n} */
-  w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** w-full */
-  w_full(): PozElement<TProps, TSchema>;
+  w_full(): PoseElement<TProps, TSchema>;
   /** w-screen */
-  w_screen(): PozElement<TProps, TSchema>;
+  w_screen(): PoseElement<TProps, TSchema>;
   /** w-min */
-  w_min(): PozElement<TProps, TSchema>;
+  w_min(): PoseElement<TProps, TSchema>;
   /** w-max */
-  w_max(): PozElement<TProps, TSchema>;
+  w_max(): PoseElement<TProps, TSchema>;
   /** w-fit */
-  w_fit(): PozElement<TProps, TSchema>;
+  w_fit(): PoseElement<TProps, TSchema>;
   /** h-{n} */
-  h(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  h(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** h-full */
-  h_full(): PozElement<TProps, TSchema>;
+  h_full(): PoseElement<TProps, TSchema>;
   /** h-screen */
-  h_screen(): PozElement<TProps, TSchema>;
+  h_screen(): PoseElement<TProps, TSchema>;
   /** h-min */
-  h_min(): PozElement<TProps, TSchema>;
+  h_min(): PoseElement<TProps, TSchema>;
   /** h-max */
-  h_max(): PozElement<TProps, TSchema>;
+  h_max(): PoseElement<TProps, TSchema>;
   /** h-fit */
-  h_fit(): PozElement<TProps, TSchema>;
+  h_fit(): PoseElement<TProps, TSchema>;
   /** min-w-{n} */
-  min_w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  min_w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** max-w-{n} */
-  max_w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  max_w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** min-h-{n} */
-  min_h(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  min_h(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** max-h-{n} */
-  max_h(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  max_h(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** aspect-{value} e.g. "auto", "square", "video" */
-  aspect(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  aspect(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** aspect-auto */
-  aspect_auto(): PozElement<TProps, TSchema>;
+  aspect_auto(): PoseElement<TProps, TSchema>;
   /** aspect-square */
-  aspect_square(): PozElement<TProps, TSchema>;
+  aspect_square(): PoseElement<TProps, TSchema>;
   /** aspect-video */
-  aspect_video(): PozElement<TProps, TSchema>;
+  aspect_video(): PoseElement<TProps, TSchema>;
 
   // ── Position ─────────────────────────────────────────────────────────────
   /** static */
-  static_pos(): PozElement<TProps, TSchema>;
+  static_pos(): PoseElement<TProps, TSchema>;
   /** relative */
-  relative(): PozElement<TProps, TSchema>;
+  relative(): PoseElement<TProps, TSchema>;
   /** absolute */
-  absolute(): PozElement<TProps, TSchema>;
+  absolute(): PoseElement<TProps, TSchema>;
   /** fixed */
-  fixed(): PozElement<TProps, TSchema>;
+  fixed(): PoseElement<TProps, TSchema>;
   /** sticky */
-  sticky(): PozElement<TProps, TSchema>;
+  sticky(): PoseElement<TProps, TSchema>;
   /** inset-{n} */
-  inset(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  inset(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** inset-0 */
-  inset_0(): PozElement<TProps, TSchema>;
+  inset_0(): PoseElement<TProps, TSchema>;
   /** inset-x-{n} */
-  inset_x(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  inset_x(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** inset-y-{n} */
-  inset_y(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  inset_y(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** top-{n} */
-  top(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  top(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** right-{n} */
-  right(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  right(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** bottom-{n} */
-  bottom(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  bottom(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** left-{n} */
-  left(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  left(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** z-{n} */
-  z(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  z(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
 
   // ── Visibility ───────────────────────────────────────────────────────────
   /** visible */
-  visible(): PozElement<TProps, TSchema>;
+  visible(): PoseElement<TProps, TSchema>;
   /** invisible */
-  invisible(): PozElement<TProps, TSchema>;
+  invisible(): PoseElement<TProps, TSchema>;
 
   // ── Float & Clear ────────────────────────────────────────────────────────
   /** float-left */
-  float_left(): PozElement<TProps, TSchema>;
+  float_left(): PoseElement<TProps, TSchema>;
   /** float-right */
-  float_right(): PozElement<TProps, TSchema>;
+  float_right(): PoseElement<TProps, TSchema>;
   /** float-none */
-  float_none(): PozElement<TProps, TSchema>;
+  float_none(): PoseElement<TProps, TSchema>;
   /** clear-left */
-  clear_left(): PozElement<TProps, TSchema>;
+  clear_left(): PoseElement<TProps, TSchema>;
   /** clear-right */
-  clear_right(): PozElement<TProps, TSchema>;
+  clear_right(): PoseElement<TProps, TSchema>;
   /** clear-both */
-  clear_both(): PozElement<TProps, TSchema>;
+  clear_both(): PoseElement<TProps, TSchema>;
   /** clear-none */
-  clear_none(): PozElement<TProps, TSchema>;
+  clear_none(): PoseElement<TProps, TSchema>;
 
   // ── Box Sizing ───────────────────────────────────────────────────────────
   /** box-border */
-  box_border(): PozElement<TProps, TSchema>;
+  box_border(): PoseElement<TProps, TSchema>;
   /** box-content */
-  box_content(): PozElement<TProps, TSchema>;
+  box_content(): PoseElement<TProps, TSchema>;
 
   // ── Overflow ─────────────────────────────────────────────────────────────
   /** overflow-auto */
-  overflow_auto(): PozElement<TProps, TSchema>;
+  overflow_auto(): PoseElement<TProps, TSchema>;
   /** overflow-hidden */
-  overflow_hidden(): PozElement<TProps, TSchema>;
+  overflow_hidden(): PoseElement<TProps, TSchema>;
   /** overflow-clip */
-  overflow_clip(): PozElement<TProps, TSchema>;
+  overflow_clip(): PoseElement<TProps, TSchema>;
   /** overflow-visible */
-  overflow_visible(): PozElement<TProps, TSchema>;
+  overflow_visible(): PoseElement<TProps, TSchema>;
   /** overflow-scroll */
-  overflow_scroll(): PozElement<TProps, TSchema>;
+  overflow_scroll(): PoseElement<TProps, TSchema>;
   /** overflow-x-auto */
-  overflow_x_auto(): PozElement<TProps, TSchema>;
+  overflow_x_auto(): PoseElement<TProps, TSchema>;
   /** overflow-x-hidden */
-  overflow_x_hidden(): PozElement<TProps, TSchema>;
+  overflow_x_hidden(): PoseElement<TProps, TSchema>;
   /** overflow-x-clip */
-  overflow_x_clip(): PozElement<TProps, TSchema>;
+  overflow_x_clip(): PoseElement<TProps, TSchema>;
   /** overflow-x-visible */
-  overflow_x_visible(): PozElement<TProps, TSchema>;
+  overflow_x_visible(): PoseElement<TProps, TSchema>;
   /** overflow-x-scroll */
-  overflow_x_scroll(): PozElement<TProps, TSchema>;
+  overflow_x_scroll(): PoseElement<TProps, TSchema>;
   /** overflow-y-auto */
-  overflow_y_auto(): PozElement<TProps, TSchema>;
+  overflow_y_auto(): PoseElement<TProps, TSchema>;
   /** overflow-y-hidden */
-  overflow_y_hidden(): PozElement<TProps, TSchema>;
+  overflow_y_hidden(): PoseElement<TProps, TSchema>;
   /** overflow-y-clip */
-  overflow_y_clip(): PozElement<TProps, TSchema>;
+  overflow_y_clip(): PoseElement<TProps, TSchema>;
   /** overflow-y-visible */
-  overflow_y_visible(): PozElement<TProps, TSchema>;
+  overflow_y_visible(): PoseElement<TProps, TSchema>;
   /** overflow-y-scroll */
-  overflow_y_scroll(): PozElement<TProps, TSchema>;
+  overflow_y_scroll(): PoseElement<TProps, TSchema>;
 
   // ── Colours ──────────────────────────────────────────────────────────────
   /** bg-{color} */
-  bg(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  bg(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** bg-opacity-{value} */
-  bg_opacity(value: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  bg_opacity(value: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** text-{color} */
-  text_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  text_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** opacity-{value} */
-  opacity(value: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  opacity(value: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
 
   // ── Background ───────────────────────────────────────────────────────────
   /** bg-clip-{value}: border | padding | content | text */
   bg_clip(
     value: Dyn<TProps, "border" | "padding" | "content" | "text">,
-  ): PozElement<TProps, TSchema>;
+  ): PoseElement<TProps, TSchema>;
   /** bg-{size}: auto | cover | contain */
-  bg_size(value: Dyn<TProps, "auto" | "cover" | "contain">): PozElement<TProps, TSchema>;
+  bg_size(value: Dyn<TProps, "auto" | "cover" | "contain">): PoseElement<TProps, TSchema>;
   /** bg-{position}: center | top | bottom | left | right | etc */
-  bg_position(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  bg_position(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** bg-repeat / bg-no-repeat / bg-repeat-x / bg-repeat-y */
   bg_repeat(
     value?: Dyn<TProps, "x" | "y" | "round" | "space" | "none">,
-  ): PozElement<TProps, TSchema>;
+  ): PoseElement<TProps, TSchema>;
   /** bg-attachment: fixed | local | scroll */
-  bg_attachment(value: Dyn<TProps, "fixed" | "local" | "scroll">): PozElement<TProps, TSchema>;
+  bg_attachment(value: Dyn<TProps, "fixed" | "local" | "scroll">): PoseElement<TProps, TSchema>;
   /** bg-gradient-to-{dir}: t | tr | r | br | b | bl | l | tl */
   bg_gradient(
     dir: Dyn<TProps, "t" | "tr" | "r" | "br" | "b" | "bl" | "l" | "tl">,
-  ): PozElement<TProps, TSchema>;
+  ): PoseElement<TProps, TSchema>;
   /** from-{color} */
-  from(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  from(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** via-{color} */
-  via(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  via(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** to-{color} */
-  to(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  to(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Border ───────────────────────────────────────────────────────────────
   /** border (all sides, 1px) */
-  border(): PozElement<TProps, TSchema>;
+  border(): PoseElement<TProps, TSchema>;
   /** border-{n} */
-  border_w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-t / border-t-{n} */
-  border_t(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_t(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-r / border-r-{n} */
-  border_r(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_r(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-b / border-b-{n} */
-  border_b(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_b(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-l / border-l-{n} */
-  border_l(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_l(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-x-{n} */
-  border_x(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_x(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-y-{n} */
-  border_y(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  border_y(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** border-{color} */
-  border_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  border_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** border-solid */
-  border_solid(): PozElement<TProps, TSchema>;
+  border_solid(): PoseElement<TProps, TSchema>;
   /** border-dashed */
-  border_dashed(): PozElement<TProps, TSchema>;
+  border_dashed(): PoseElement<TProps, TSchema>;
   /** border-dotted */
-  border_dotted(): PozElement<TProps, TSchema>;
+  border_dotted(): PoseElement<TProps, TSchema>;
   /** border-double */
-  border_double(): PozElement<TProps, TSchema>;
+  border_double(): PoseElement<TProps, TSchema>;
   /** border-none */
-  border_none(): PozElement<TProps, TSchema>;
+  border_none(): PoseElement<TProps, TSchema>;
   /** border-collapse */
-  border_collapse(): PozElement<TProps, TSchema>;
+  border_collapse(): PoseElement<TProps, TSchema>;
   /** border-separate */
-  border_separate(): PozElement<TProps, TSchema>;
+  border_separate(): PoseElement<TProps, TSchema>;
   /** rounded / rounded-{size} */
-  rounded(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  rounded(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** rounded-full */
-  rounded_full(): PozElement<TProps, TSchema>;
+  rounded_full(): PoseElement<TProps, TSchema>;
   /** rounded-t-{size} */
-  rounded_t(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  rounded_t(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** rounded-r-{size} */
-  rounded_r(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  rounded_r(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** rounded-b-{size} */
-  rounded_b(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  rounded_b(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** rounded-l-{size} */
-  rounded_l(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  rounded_l(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Divide ───────────────────────────────────────────────────────────────
   /** divide-x-{n} — border between horizontal children */
-  divide_x(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  divide_x(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** divide-y-{n} — border between vertical children */
-  divide_y(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  divide_y(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** divide-x-reverse */
-  divide_x_reverse(): PozElement<TProps, TSchema>;
+  divide_x_reverse(): PoseElement<TProps, TSchema>;
   /** divide-y-reverse */
-  divide_y_reverse(): PozElement<TProps, TSchema>;
+  divide_y_reverse(): PoseElement<TProps, TSchema>;
   /** divide-{color} */
-  divide_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  divide_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** divide-solid */
-  divide_solid(): PozElement<TProps, TSchema>;
+  divide_solid(): PoseElement<TProps, TSchema>;
   /** divide-dashed */
-  divide_dashed(): PozElement<TProps, TSchema>;
+  divide_dashed(): PoseElement<TProps, TSchema>;
   /** divide-dotted */
-  divide_dotted(): PozElement<TProps, TSchema>;
+  divide_dotted(): PoseElement<TProps, TSchema>;
   /** divide-none */
-  divide_none(): PozElement<TProps, TSchema>;
+  divide_none(): PoseElement<TProps, TSchema>;
 
   // ── Ring (focus/outline rings) ───────────────────────────────────────────
   /** ring */
-  ring(): PozElement<TProps, TSchema>;
+  ring(): PoseElement<TProps, TSchema>;
   /** ring-{n} */
-  ring_w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  ring_w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** ring-inset */
-  ring_inset(): PozElement<TProps, TSchema>;
+  ring_inset(): PoseElement<TProps, TSchema>;
   /** ring-{color} */
-  ring_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  ring_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** ring-offset-{n} */
-  ring_offset(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  ring_offset(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** ring-offset-{color} */
-  ring_offset_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  ring_offset_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Outline ──────────────────────────────────────────────────────────────
   /** outline-none */
-  outline_none(): PozElement<TProps, TSchema>;
+  outline_none(): PoseElement<TProps, TSchema>;
   /** outline */
-  outline(): PozElement<TProps, TSchema>;
+  outline(): PoseElement<TProps, TSchema>;
   /** outline-dashed */
-  outline_dashed(): PozElement<TProps, TSchema>;
+  outline_dashed(): PoseElement<TProps, TSchema>;
   /** outline-dotted */
-  outline_dotted(): PozElement<TProps, TSchema>;
+  outline_dotted(): PoseElement<TProps, TSchema>;
   /** outline-double */
-  outline_double(): PozElement<TProps, TSchema>;
+  outline_double(): PoseElement<TProps, TSchema>;
   /** outline-{color} */
-  outline_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  outline_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** outline-{n} */
-  outline_w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  outline_w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** outline-offset-{n} */
-  outline_offset(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  outline_offset(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
 
   // ── Shadow ───────────────────────────────────────────────────────────────
   /** shadow */
-  shadow(): PozElement<TProps, TSchema>;
+  shadow(): PoseElement<TProps, TSchema>;
   /** shadow-sm */
-  shadow_sm(): PozElement<TProps, TSchema>;
+  shadow_sm(): PoseElement<TProps, TSchema>;
   /** shadow-md */
-  shadow_md(): PozElement<TProps, TSchema>;
+  shadow_md(): PoseElement<TProps, TSchema>;
   /** shadow-lg */
-  shadow_lg(): PozElement<TProps, TSchema>;
+  shadow_lg(): PoseElement<TProps, TSchema>;
   /** shadow-xl */
-  shadow_xl(): PozElement<TProps, TSchema>;
+  shadow_xl(): PoseElement<TProps, TSchema>;
   /** shadow-2xl */
-  shadow_2xl(): PozElement<TProps, TSchema>;
+  shadow_2xl(): PoseElement<TProps, TSchema>;
   /** shadow-inner */
-  shadow_inner(): PozElement<TProps, TSchema>;
+  shadow_inner(): PoseElement<TProps, TSchema>;
   /** shadow-none */
-  shadow_none(): PozElement<TProps, TSchema>;
+  shadow_none(): PoseElement<TProps, TSchema>;
   /** shadow-{color} */
-  shadow_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  shadow_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Typography ───────────────────────────────────────────────────────────
   /** text-{size} */
-  text(size: Dyn<TProps, string>): PozElement<TProps, TSchema>;
-  text_xs(): PozElement<TProps, TSchema>;
-  text_sm(): PozElement<TProps, TSchema>;
-  text_base(): PozElement<TProps, TSchema>;
-  text_lg(): PozElement<TProps, TSchema>;
-  text_xl(): PozElement<TProps, TSchema>;
-  text_2xl(): PozElement<TProps, TSchema>;
-  text_3xl(): PozElement<TProps, TSchema>;
-  text_4xl(): PozElement<TProps, TSchema>;
-  text_5xl(): PozElement<TProps, TSchema>;
-  text_6xl(): PozElement<TProps, TSchema>;
-  text_7xl(): PozElement<TProps, TSchema>;
-  text_8xl(): PozElement<TProps, TSchema>;
-  text_9xl(): PozElement<TProps, TSchema>;
+  text(size: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
+  text_xs(): PoseElement<TProps, TSchema>;
+  text_sm(): PoseElement<TProps, TSchema>;
+  text_base(): PoseElement<TProps, TSchema>;
+  text_lg(): PoseElement<TProps, TSchema>;
+  text_xl(): PoseElement<TProps, TSchema>;
+  text_2xl(): PoseElement<TProps, TSchema>;
+  text_3xl(): PoseElement<TProps, TSchema>;
+  text_4xl(): PoseElement<TProps, TSchema>;
+  text_5xl(): PoseElement<TProps, TSchema>;
+  text_6xl(): PoseElement<TProps, TSchema>;
+  text_7xl(): PoseElement<TProps, TSchema>;
+  text_8xl(): PoseElement<TProps, TSchema>;
+  text_9xl(): PoseElement<TProps, TSchema>;
   /** font-{weight} */
-  font_thin(): PozElement<TProps, TSchema>;
-  font_extralight(): PozElement<TProps, TSchema>;
-  font_light(): PozElement<TProps, TSchema>;
-  font_normal(): PozElement<TProps, TSchema>;
-  font_medium(): PozElement<TProps, TSchema>;
-  font_semibold(): PozElement<TProps, TSchema>;
-  font_bold(): PozElement<TProps, TSchema>;
-  font_extrabold(): PozElement<TProps, TSchema>;
-  font_black(): PozElement<TProps, TSchema>;
+  font_thin(): PoseElement<TProps, TSchema>;
+  font_extralight(): PoseElement<TProps, TSchema>;
+  font_light(): PoseElement<TProps, TSchema>;
+  font_normal(): PoseElement<TProps, TSchema>;
+  font_medium(): PoseElement<TProps, TSchema>;
+  font_semibold(): PoseElement<TProps, TSchema>;
+  font_bold(): PoseElement<TProps, TSchema>;
+  font_extrabold(): PoseElement<TProps, TSchema>;
+  font_black(): PoseElement<TProps, TSchema>;
   /** italic */
-  italic(): PozElement<TProps, TSchema>;
+  italic(): PoseElement<TProps, TSchema>;
   /** not-italic */
-  not_italic(): PozElement<TProps, TSchema>;
+  not_italic(): PoseElement<TProps, TSchema>;
   /** text-left */
-  text_left(): PozElement<TProps, TSchema>;
+  text_left(): PoseElement<TProps, TSchema>;
   /** text-center */
-  text_center(): PozElement<TProps, TSchema>;
+  text_center(): PoseElement<TProps, TSchema>;
   /** text-right */
-  text_right(): PozElement<TProps, TSchema>;
+  text_right(): PoseElement<TProps, TSchema>;
   /** text-justify */
-  text_justify(): PozElement<TProps, TSchema>;
+  text_justify(): PoseElement<TProps, TSchema>;
   /** text-wrap */
-  text_wrap(): PozElement<TProps, TSchema>;
+  text_wrap(): PoseElement<TProps, TSchema>;
   /** text-nowrap */
-  text_nowrap(): PozElement<TProps, TSchema>;
+  text_nowrap(): PoseElement<TProps, TSchema>;
   /** text-balance */
-  text_balance(): PozElement<TProps, TSchema>;
+  text_balance(): PoseElement<TProps, TSchema>;
   /** text-pretty */
-  text_pretty(): PozElement<TProps, TSchema>;
+  text_pretty(): PoseElement<TProps, TSchema>;
   /** truncate */
-  truncate(): PozElement<TProps, TSchema>;
+  truncate(): PoseElement<TProps, TSchema>;
   /** text-ellipsis */
-  text_ellipsis(): PozElement<TProps, TSchema>;
+  text_ellipsis(): PoseElement<TProps, TSchema>;
   /** text-clip */
-  text_clip(): PozElement<TProps, TSchema>;
+  text_clip(): PoseElement<TProps, TSchema>;
   /** leading-{value} */
-  leading(value: Dyn<TProps, string | number>): PozElement<TProps, TSchema>;
+  leading(value: Dyn<TProps, string | number>): PoseElement<TProps, TSchema>;
   /** tracking-{value} */
-  tracking(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  tracking(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** line-clamp-{n} */
-  line_clamp(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  line_clamp(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** whitespace-{value}: normal | nowrap | pre | pre-line | pre-wrap | break-spaces */
-  whitespace(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  whitespace(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** break-normal */
-  break_normal(): PozElement<TProps, TSchema>;
+  break_normal(): PoseElement<TProps, TSchema>;
   /** break-words */
-  break_words(): PozElement<TProps, TSchema>;
+  break_words(): PoseElement<TProps, TSchema>;
   /** break-all */
-  break_all(): PozElement<TProps, TSchema>;
+  break_all(): PoseElement<TProps, TSchema>;
   /** break-keep */
-  break_keep(): PozElement<TProps, TSchema>;
+  break_keep(): PoseElement<TProps, TSchema>;
   /** uppercase */
-  uppercase(): PozElement<TProps, TSchema>;
+  uppercase(): PoseElement<TProps, TSchema>;
   /** lowercase */
-  lowercase(): PozElement<TProps, TSchema>;
+  lowercase(): PoseElement<TProps, TSchema>;
   /** capitalize */
-  capitalize(): PozElement<TProps, TSchema>;
+  capitalize(): PoseElement<TProps, TSchema>;
   /** normal-case */
-  normal_case(): PozElement<TProps, TSchema>;
+  normal_case(): PoseElement<TProps, TSchema>;
   /** underline */
-  underline(): PozElement<TProps, TSchema>;
+  underline(): PoseElement<TProps, TSchema>;
   /** overline */
-  overline(): PozElement<TProps, TSchema>;
+  overline(): PoseElement<TProps, TSchema>;
   /** line-through */
-  line_through(): PozElement<TProps, TSchema>;
+  line_through(): PoseElement<TProps, TSchema>;
   /** no-underline */
-  no_underline(): PozElement<TProps, TSchema>;
+  no_underline(): PoseElement<TProps, TSchema>;
   /** decoration-{color} */
-  decoration_color(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  decoration_color(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** indent-{n} */
-  indent(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  indent(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** align-{value}: baseline | top | middle | bottom | text-top | text-bottom | sub | super */
-  align(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  align(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** font-{family}: sans | serif | mono */
-  font_family(family: Dyn<TProps, "sans" | "serif" | "mono">): PozElement<TProps, TSchema>;
+  font_family(family: Dyn<TProps, "sans" | "serif" | "mono">): PoseElement<TProps, TSchema>;
 
   // ── List ─────────────────────────────────────────────────────────────────
   /** list-none */
-  list_none(): PozElement<TProps, TSchema>;
+  list_none(): PoseElement<TProps, TSchema>;
   /** list-disc */
-  list_disc(): PozElement<TProps, TSchema>;
+  list_disc(): PoseElement<TProps, TSchema>;
   /** list-decimal */
-  list_decimal(): PozElement<TProps, TSchema>;
+  list_decimal(): PoseElement<TProps, TSchema>;
   /** list-inside */
-  list_inside(): PozElement<TProps, TSchema>;
+  list_inside(): PoseElement<TProps, TSchema>;
   /** list-outside */
-  list_outside(): PozElement<TProps, TSchema>;
+  list_outside(): PoseElement<TProps, TSchema>;
 
   // ── Object fit / position ────────────────────────────────────────────────
   /** object-contain */
-  object_contain(): PozElement<TProps, TSchema>;
+  object_contain(): PoseElement<TProps, TSchema>;
   /** object-cover */
-  object_cover(): PozElement<TProps, TSchema>;
+  object_cover(): PoseElement<TProps, TSchema>;
   /** object-fill */
-  object_fill(): PozElement<TProps, TSchema>;
+  object_fill(): PoseElement<TProps, TSchema>;
   /** object-none */
-  object_none(): PozElement<TProps, TSchema>;
+  object_none(): PoseElement<TProps, TSchema>;
   /** object-scale-down */
-  object_scale_down(): PozElement<TProps, TSchema>;
+  object_scale_down(): PoseElement<TProps, TSchema>;
   /** object-{position}: center | top | bottom | left | right | etc */
-  object_position(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  object_position(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Transforms ───────────────────────────────────────────────────────────
   /** scale-{n} */
-  scale(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  scale(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** scale-x-{n} */
-  scale_x(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  scale_x(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** scale-y-{n} */
-  scale_y(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  scale_y(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** rotate-{n} */
-  rotate(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  rotate(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** translate-x-{n} */
-  translate_x(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  translate_x(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** translate-y-{n} */
-  translate_y(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  translate_y(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** skew-x-{n} */
-  skew_x(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  skew_x(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** skew-y-{n} */
-  skew_y(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  skew_y(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** origin-{value}: center | top | top-right | right | bottom-right | bottom | bottom-left | left | top-left */
-  origin(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  origin(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Filters ──────────────────────────────────────────────────────────────
   /** blur / blur-{size} */
-  blur(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  blur(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** brightness-{n} */
-  brightness(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  brightness(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** contrast-{n} */
-  contrast(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  contrast(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** grayscale / grayscale-0 */
-  grayscale(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  grayscale(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** hue-rotate-{n} */
-  hue_rotate(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  hue_rotate(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** invert / invert-0 */
-  invert(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  invert(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** saturate-{n} */
-  saturate(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  saturate(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** sepia / sepia-0 */
-  sepia(n?: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  sepia(n?: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** drop-shadow / drop-shadow-{size} */
-  drop_shadow(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  drop_shadow(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** backdrop-blur / backdrop-blur-{size} */
-  backdrop_blur(size?: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  backdrop_blur(size?: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** backdrop-brightness-{n} */
-  backdrop_brightness(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  backdrop_brightness(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
 
   // ── Animation ────────────────────────────────────────────────────────────
   /** animate-none */
-  animate_none(): PozElement<TProps, TSchema>;
+  animate_none(): PoseElement<TProps, TSchema>;
   /** animate-spin */
-  animate_spin(): PozElement<TProps, TSchema>;
+  animate_spin(): PoseElement<TProps, TSchema>;
   /** animate-ping */
-  animate_ping(): PozElement<TProps, TSchema>;
+  animate_ping(): PoseElement<TProps, TSchema>;
   /** animate-pulse */
-  animate_pulse(): PozElement<TProps, TSchema>;
+  animate_pulse(): PoseElement<TProps, TSchema>;
   /** animate-bounce */
-  animate_bounce(): PozElement<TProps, TSchema>;
+  animate_bounce(): PoseElement<TProps, TSchema>;
   /** transition */
-  transition(): PozElement<TProps, TSchema>;
+  transition(): PoseElement<TProps, TSchema>;
   /** transition-{property}: none | all | colors | opacity | shadow | transform */
-  transition_prop(prop: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  transition_prop(prop: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** duration-{n} */
-  duration(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  duration(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** delay-{n} */
-  delay(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  delay(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
   /** ease-{value}: linear | in | out | in-out */
-  ease(value: Dyn<TProps, "linear" | "in" | "out" | "in-out">): PozElement<TProps, TSchema>;
+  ease(value: Dyn<TProps, "linear" | "in" | "out" | "in-out">): PoseElement<TProps, TSchema>;
   /** will-change-{value}: auto | scroll | contents | transform */
-  will_change(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  will_change(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Interactivity ────────────────────────────────────────────────────────
   /** cursor-auto */
-  cursor_auto(): PozElement<TProps, TSchema>;
+  cursor_auto(): PoseElement<TProps, TSchema>;
   /** cursor-default */
-  cursor_default(): PozElement<TProps, TSchema>;
+  cursor_default(): PoseElement<TProps, TSchema>;
   /** cursor-pointer */
-  cursor_pointer(): PozElement<TProps, TSchema>;
+  cursor_pointer(): PoseElement<TProps, TSchema>;
   /** cursor-wait */
-  cursor_wait(): PozElement<TProps, TSchema>;
+  cursor_wait(): PoseElement<TProps, TSchema>;
   /** cursor-text */
-  cursor_text(): PozElement<TProps, TSchema>;
+  cursor_text(): PoseElement<TProps, TSchema>;
   /** cursor-move */
-  cursor_move(): PozElement<TProps, TSchema>;
+  cursor_move(): PoseElement<TProps, TSchema>;
   /** cursor-not-allowed */
-  cursor_not_allowed(): PozElement<TProps, TSchema>;
+  cursor_not_allowed(): PoseElement<TProps, TSchema>;
   /** cursor-grab */
-  cursor_grab(): PozElement<TProps, TSchema>;
+  cursor_grab(): PoseElement<TProps, TSchema>;
   /** cursor-grabbing */
-  cursor_grabbing(): PozElement<TProps, TSchema>;
+  cursor_grabbing(): PoseElement<TProps, TSchema>;
   /** cursor-crosshair */
-  cursor_crosshair(): PozElement<TProps, TSchema>;
+  cursor_crosshair(): PoseElement<TProps, TSchema>;
   /** select-none */
-  select_none(): PozElement<TProps, TSchema>;
+  select_none(): PoseElement<TProps, TSchema>;
   /** select-text */
-  select_text(): PozElement<TProps, TSchema>;
+  select_text(): PoseElement<TProps, TSchema>;
   /** select-all */
-  select_all(): PozElement<TProps, TSchema>;
+  select_all(): PoseElement<TProps, TSchema>;
   /** select-auto */
-  select_auto(): PozElement<TProps, TSchema>;
+  select_auto(): PoseElement<TProps, TSchema>;
   /** resize-none */
-  resize_none(): PozElement<TProps, TSchema>;
+  resize_none(): PoseElement<TProps, TSchema>;
   /** resize */
-  resize(): PozElement<TProps, TSchema>;
+  resize(): PoseElement<TProps, TSchema>;
   /** resize-x */
-  resize_x(): PozElement<TProps, TSchema>;
+  resize_x(): PoseElement<TProps, TSchema>;
   /** resize-y */
-  resize_y(): PozElement<TProps, TSchema>;
+  resize_y(): PoseElement<TProps, TSchema>;
   /** pointer-events-none */
-  pointer_events_none(): PozElement<TProps, TSchema>;
+  pointer_events_none(): PoseElement<TProps, TSchema>;
   /** pointer-events-auto */
-  pointer_events_auto(): PozElement<TProps, TSchema>;
+  pointer_events_auto(): PoseElement<TProps, TSchema>;
   /** touch-auto */
-  touch_auto(): PozElement<TProps, TSchema>;
+  touch_auto(): PoseElement<TProps, TSchema>;
   /** touch-none */
-  touch_none(): PozElement<TProps, TSchema>;
+  touch_none(): PoseElement<TProps, TSchema>;
   /** touch-pan-x */
-  touch_pan_x(): PozElement<TProps, TSchema>;
+  touch_pan_x(): PoseElement<TProps, TSchema>;
   /** touch-pan-y */
-  touch_pan_y(): PozElement<TProps, TSchema>;
+  touch_pan_y(): PoseElement<TProps, TSchema>;
   /** touch-manipulation */
-  touch_manipulation(): PozElement<TProps, TSchema>;
+  touch_manipulation(): PoseElement<TProps, TSchema>;
   /** appearance-none */
-  appearance_none(): PozElement<TProps, TSchema>;
+  appearance_none(): PoseElement<TProps, TSchema>;
 
   // ── Mix blend ────────────────────────────────────────────────────────────
   /** mix-blend-{mode} */
-  mix_blend(mode: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  mix_blend(mode: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── SVG ──────────────────────────────────────────────────────────────────
   /** fill-{color} */
-  fill(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  fill(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** stroke-{color} */
-  stroke(color: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  stroke(color: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
   /** stroke-{n} */
-  stroke_w(n: Dyn<TProps, number | string>): PozElement<TProps, TSchema>;
+  stroke_w(n: Dyn<TProps, number | string>): PoseElement<TProps, TSchema>;
 
   // ── Accessibility ────────────────────────────────────────────────────────
   /** sr-only */
-  sr_only(): PozElement<TProps, TSchema>;
+  sr_only(): PoseElement<TProps, TSchema>;
   /** not-sr-only */
-  not_sr_only(): PozElement<TProps, TSchema>;
+  not_sr_only(): PoseElement<TProps, TSchema>;
 
   // ── Pattern matching ─────────────────────────────────────────────────────
 
@@ -941,14 +940,17 @@ export interface PozElement<
    */
   when(
     pred: (props: TProps) => boolean,
-    apply: (b: PozElement<TProps, undefined>) => PozElement<TProps, any>,
-  ): PozElement<TProps, TSchema>;
+    apply: (b: PoseElement<TProps, undefined>) => PoseElement<TProps, any>,
+  ): PoseElement<TProps, TSchema>;
   when<K extends keyof TProps>(
     key: K,
     cases: Partial<
-      Record<TProps[K] & PropertyKey, (b: PozElement<TProps, undefined>) => PozElement<TProps, any>>
+      Record<
+        TProps[K] & PropertyKey,
+        (b: PoseElement<TProps, undefined>) => PoseElement<TProps, any>
+      >
     >,
-  ): PozElement<TProps, TSchema>;
+  ): PoseElement<TProps, TSchema>;
 
   // ── Escape hatch ─────────────────────────────────────────────────────────
   /**
@@ -957,11 +959,11 @@ export interface PozElement<
    * .cls('hover:opacity-75')
    * .cls(({ active }) => active ? 'ring-2 ring-blue-500' : '')
    */
-  cls(value: Dyn<TProps, string>): PozElement<TProps, TSchema>;
+  cls(value: Dyn<TProps, string>): PoseElement<TProps, TSchema>;
 
   // ── Children ─────────────────────────────────────────────────────────────
-  child(fn: (props: TProps) => ChildValue): PozElement<TProps, TSchema>;
-  child(value: ChildValue): PozElement<TProps, TSchema>;
+  child(fn: (props: TProps) => ChildValue): PoseElement<TProps, TSchema>;
+  child(value: ChildValue): PoseElement<TProps, TSchema>;
 
   /**
    * Render to `{ html, css }` using UnoCSS + presetWind4.
@@ -971,10 +973,10 @@ export interface PozElement<
   render(...args: CallArgs<TProps>): Promise<{ html: string; css: string }>;
 }
 
-export interface Poze {
+export interface Pose {
   as<Tag extends keyof HTMLElementTagNameMap>(
     tag: Tag,
-  ): PozElement<Record<never, never>, undefined>;
+  ): PoseElement<Record<never, never>, undefined>;
 }
 
 // ---------------------------------------------------------------------------
@@ -1010,14 +1012,14 @@ function resolveClasses<TProps>(classes: ReadonlyArray<ClassEntry<TProps>>, prop
 function renderChild(child: unknown, props: Record<string, unknown>): string {
   if (typeof child === "function") return renderChild((child as Function)(props), props);
   if (Array.isArray(child)) return child.map((c) => renderChild(c, props)).join("");
-  if (child != null && typeof child === "object" && "__poze" in child) {
+  if (child != null && typeof child === "object" && "__pose" in child) {
     return (child as (p: Record<string, unknown>) => string)(props);
   }
   return child == null ? "" : String(child);
 }
 
 /** A tagless builder used inside .when() callbacks — only accumulates classes. */
-function createBlankBuilder<TProps extends Record<string, unknown>>(): PozElement<
+function createBlankBuilder<TProps extends Record<string, unknown>>(): PoseElement<
   TProps,
   undefined
 > {
@@ -1032,11 +1034,11 @@ function createBlankBuilder<TProps extends Record<string, unknown>>(): PozElemen
 function createBuilder<
   TProps extends Record<string, unknown>,
   TSchema extends StandardSchemaV1 | undefined = undefined,
->(state: BuilderState<TProps>): PozElement<TProps, TSchema> {
+>(state: BuilderState<TProps>): PoseElement<TProps, TSchema> {
   function derive(
     extraClasses: ClassEntry<TProps>[] = [],
     extraChildren: Child<TProps>[] = [],
-  ): PozElement<TProps, TSchema> {
+  ): PoseElement<TProps, TSchema> {
     return createBuilder<TProps, TSchema>({
       ...state,
       classes: [...state.classes, ...extraClasses],
@@ -1048,7 +1050,7 @@ function createBuilder<
     return derive([name]);
   }
 
-  function dynCls<T>(raw: Dyn<TProps, T>, map: (v: T) => string): PozElement<TProps, TSchema> {
+  function dynCls<T>(raw: Dyn<TProps, T>, map: (v: T) => string): PoseElement<TProps, TSchema> {
     if (typeof raw === "function") {
       const fn = raw as (p: TProps) => T;
       return derive([(props: TProps) => map(fn(props))]);
@@ -1073,9 +1075,9 @@ function createBuilder<
     return buildHtml(result as TProps);
   }
 
-  (render as any).__poze = true;
+  (render as any).__pose = true;
 
-  const el = render as PozElement<TProps, TSchema>;
+  const el = render as PoseElement<TProps, TSchema>;
 
   Object.defineProperty(el, "classes", { get: () => state.classes, enumerable: true });
 
@@ -1531,7 +1533,7 @@ function createBuilder<
       // Predicate form: when(pred, apply)
       const [pred, apply] = args as [
         (props: TProps) => boolean,
-        (b: PozElement<TProps, undefined>) => PozElement<TProps, any>,
+        (b: PoseElement<TProps, undefined>) => PoseElement<TProps, any>,
       ];
       return derive([
         (props: TProps) => {
@@ -1543,7 +1545,7 @@ function createBuilder<
       // Value form: when(key, cases)
       const [key, cases] = args as [
         keyof TProps,
-        Record<PropertyKey, (b: PozElement<TProps, undefined>) => PozElement<TProps, any>>,
+        Record<PropertyKey, (b: PoseElement<TProps, undefined>) => PoseElement<TProps, any>>,
       ];
       return derive([
         (props: TProps) => {
@@ -1597,12 +1599,12 @@ async function getGenerator() {
 // Public API
 // ---------------------------------------------------------------------------
 
-const poze: Poze = {
+const pose: Pose = {
   as(tag) {
     return createBuilder({ tag, classes: [], children: [], schema: undefined });
   },
 };
 
-export const div = poze.as("div");
+export const div = pose.as("div");
 
-export default poze;
+export default pose;

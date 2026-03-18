@@ -1,12 +1,12 @@
 {
-  "name": "poze",
+  "name": "poseui",
   "version": "0.0.1",
   "description": "Type-safe HTML templating engine on steroids",
   "license": "MIT",
   "author": "Ryuz <ryuzer@proton.me>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/guarana-studio/poze.git"
+    "url": "git+https://github.com/guarana-studio/poseui.git"
   },
   "files": [
     "dist"

@@ -1,4 +1,4 @@
-# Poze
+# Pose
 
 > ⚠️ Prototype — API is unstable
 
@@ -7,10 +7,10 @@ Type-safe HTML templating engine with a fluent Tailwind v4 builder API. Inspired
 Uses [UnoCSS](https://unocss.dev) + [presetWind4](https://unocss.dev/presets/wind4) for CSS generation and [Standard Schema](https://standardschema.dev) for prop validation.
 
 ```ts
-import poze from "poze";
+import pose from "poseui";
 import { z } from "zod";
 
-const button = poze
+const button = pose
   .as("button")
   .input(
     z.object({
@@ -44,16 +44,16 @@ const { html, css } = await button.render({ variant: "primary" });
 ## Install
 
 ```bash
-bun add poze
+bun add poseui
 # optional
 bun add zod  # or valibot, arktype, any Standard Schema lib
 ```
 
 ## Core concepts
 
-**`poze.as(tag)`** — start a builder for any HTML tag.
+**`pose.as(tag)`** — start a builder for any HTML tag.
 
-**`.input(schema)`** — bind a [Standard Schema](https://standardschema.dev) object schema. Infers `TProps` from the output type, so `.default()` transforms work. Validates on every render, throws `PozeValidationError` on failure.
+**`.input(schema)`** — bind a [Standard Schema](https://standardschema.dev) object schema. Infers `TProps` from the output type, so `.default()` transforms work. Validates on every render, throws `PoseValidationError` on failure.
 
 **Style methods** — mirror Tailwind v4 utilities. Every method that takes a value also accepts `(props: TProps) => value` for one-off dynamic styles. See the source for the full list.
 
@@ -78,7 +78,7 @@ Cases are `Partial` — unmatched values emit no classes. Multiple `.when()` cal
 **`.cls(value)`** — escape hatch for anything not in the builder. Accepts a raw class string or `(props) => string`.
 
 ```ts
-poze
+pose
   .as("div")
   .cls("hover:opacity-75")
   .cls(({ active }) => (active ? "ring-2 ring-blue-500" : ""));
@@ -93,12 +93,12 @@ poze
 ## Validation errors
 
 ```ts
-import { PozeValidationError } from "poze";
+import { PoseValidationError } from "poseui";
 
 try {
   button({ variant: "primary" });
 } catch (err) {
-  if (err instanceof PozeValidationError) {
+  if (err instanceof PoseValidationError) {
     console.log(err.issues); // StandardSchemaV1.Issue[]
   }
 }

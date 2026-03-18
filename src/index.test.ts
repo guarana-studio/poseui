@@ -1,9 +1,9 @@
 import { it, expect } from "bun:test";
-import poze, { div } from "./";
+import pose, { div } from "./";
 import { z } from "zod";
 
 it("creates a div", () => {
-  const div = poze.as("div");
+  const div = pose.as("div");
   expect(div()).toEqual("<div></div>");
 });
 
@@ -12,12 +12,12 @@ it("has a default div export", () => {
 });
 
 it("allows to define children", () => {
-  const div = poze.as("div").child("Hello, World!");
+  const div = pose.as("div").child("Hello, World!");
   expect(div()).toEqual("<div>Hello, World!</div>");
 });
 
 it("allows to define input", () => {
-  const div = poze
+  const div = pose
     .as("div")
     .input(z.object({ name: z.string() }))
     .child(({ name }) => name);
@@ -25,7 +25,7 @@ it("allows to define input", () => {
 });
 
 it("allows to define styling variants", () => {
-  const button = poze
+  const button = pose
     .as("button")
     .input(z.object({ variant: z.enum(["primary", "secondary"]).default("primary") }))
     .bg(({ variant }) => (variant === "primary" ? "blue-500" : "neutral-500"));
@@ -33,13 +33,13 @@ it("allows to define styling variants", () => {
 });
 
 it("allows to generate css", async () => {
-  const { html, css } = await poze.as("div").bg("blue-500").render();
+  const { html, css } = await pose.as("div").bg("blue-500").render();
   expect(html).toEqual('<div class="bg-blue-500"></div>');
   expect(css).toContain(".bg-blue-500{");
 });
 
 it("allows to define boolean variant", () => {
-  const button = poze
+  const button = pose
     .as("button")
     .input(z.object({ disabled: z.boolean().default(false) }))
     .when(
@@ -52,7 +52,7 @@ it("allows to define boolean variant", () => {
 });
 
 it("allows to define string variants", () => {
-  const button = poze
+  const button = pose
     .as("button")
     .input(z.object({ variant: z.enum(["primary", "secondary"]).default("primary") }))
     .when("variant", {
