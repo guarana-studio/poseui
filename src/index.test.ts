@@ -97,7 +97,7 @@ describe(".input()", () => {
       .input(z.object({ count: z.number().default(0) }))
       .child(({ count }) => String(count));
 
-    expect(el({})).toEqual("<div>0</div>");
+    expect(el()).toEqual("<div>0</div>");
   });
 
   it("applies schema transforms before rendering", () => {
@@ -407,6 +407,14 @@ describe(".render()", () => {
     const { html, css } = await pose.as("div").bg("blue-500").render();
     expect(html).toEqual('<div class="bg-blue-500"></div>');
     expect(css).toContain(".bg-blue-500{");
+  });
+
+  it("disabled preflight styles", async () => {
+    const { css } = await pose
+      .as("div")
+      .bg("blue-500")
+      .render({}, { generatorOptions: { preflights: false } });
+    expect(css).not.toContain("oklch(62.3% 0.214 259.815)");
   });
 
   it("generates css only for used classes", async () => {

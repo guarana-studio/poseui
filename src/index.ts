@@ -3,6 +3,8 @@
 // https://standardschema.dev  |  https://unocss.dev/presets/wind4
 // =============================================================================
 
+import type { GenerateOptions, UnoGenerator } from "@unocss/core";
+
 // ---------------------------------------------------------------------------
 // Standard Schema v1 spec — copied inline, no runtime dep.
 // ---------------------------------------------------------------------------
@@ -109,10 +111,10 @@ type RenderReturn<TSchema extends StandardSchemaV1 | undefined> = TSchema extend
   : string;
 
 type CallArgs<TProps extends Record<string, unknown>, TSchema> = TSchema extends StandardSchemaV1
-  ? [Partial<TProps>?]
+  ? [TProps?] // When schema exists, props are optional
   : [keyof TProps] extends [never]
-    ? [] | [TProps]
-    : [TProps];
+    ? [TProps?] // When no props, make it optional
+    : [TProps]; // When props required, make it required
 
 type ClassEntry<TProps> = string | ((props: TProps) => string);
 
@@ -974,7 +976,10 @@ export interface PoseElement<
    * @example
    * const { html, css } = await card.render({ name: 'Ada' })
    */
-  render(...args: CallArgs<TProps, TSchema>): Promise<{ html: string; css: string }>;
+  render(
+    props?: CallArgs<TProps, TSchema>[0],
+    opts?: { generatorOptions?: Partial<GenerateOptions<false>> },
+  ): Promise<{ html: string; css: string }>;
 }
 
 export interface Pose {
@@ -1075,7 +1080,7 @@ function createBuilder<
     return `<${state.tag}${classAttr}>${childrenStr}</${state.tag}>`;
   }
 
-  function render(...args: any[]): any {
+  function render(...args: CallArgs<TProps, TSchema>): any {
     const props = (args[0] ?? {}) as TProps;
     if (!state.schema) return buildHtml(props);
     const result = runSchema(state.schema, props);
@@ -1570,11 +1575,14 @@ function createBuilder<
   el.cls = (value) => (typeof value === "function" ? derive([value]) : derive([value]));
 
   // Render to { html, css }
-  el.render = async (...args: any[]) => {
-    const html = render(...args);
+  el.render = async (
+    props?: CallArgs<TProps, TSchema>[0],
+    opts?: { generatorOptions?: Partial<GenerateOptions<false>> },
+  ) => {
+    const html = (render as any)(props);
     const resolvedHtml = html instanceof Promise ? await html : html;
     const generator = await getGenerator();
-    const { css } = await generator.generate(resolvedHtml, { preflights: false });
+    const { css } = await generator.generate(resolvedHtml, opts?.generatorOptions);
     return { html: resolvedHtml, css };
   };
 
@@ -1593,7 +1601,7 @@ function createBuilder<
 // CSS generation via UnoCSS
 // ---------------------------------------------------------------------------
 
-let _generator: any = null;
+let _generator: UnoGenerator | undefined = undefined;
 
 async function getGenerator() {
   if (_generator) return _generator;
