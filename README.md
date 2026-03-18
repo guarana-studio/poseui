@@ -1,4 +1,4 @@
-# Pose
+# poseui
 
 > ⚠️ Prototype — API is unstable
 
@@ -44,8 +44,7 @@ const { html, css } = await button.render({ variant: "primary" });
 ## Install
 
 ```bash
-bun add poseui
-# optional
+bun add poseui @unocss/core @unocss/preset-wind4
 bun add zod  # or valibot, arktype, any Standard Schema lib
 ```
 
@@ -75,6 +74,35 @@ bun add zod  # or valibot, arktype, any Standard Schema lib
 
 Cases are `Partial` — unmatched values emit no classes. Multiple `.when()` calls stack independently.
 
+**`.attr(name, value)`** — set a single HTML attribute. Value can be static or `(props) => string | null`. `null` omits the attribute; `""` renders it as a boolean attribute (`required`, `disabled`, etc.):
+
+```ts
+pose
+  .as("a")
+  .input(z.object({ url: z.string(), external: z.boolean() }))
+  .attr("href", ({ url }) => url)
+  .attr("target", ({ external }) => (external ? "_blank" : null))
+  .attr("rel", ({ external }) => (external ? "noopener noreferrer" : null));
+```
+
+**`.attrs(record | fn)`** — set multiple attributes at once. Accepts a record of static/dynamic values, or a `(props) => Record<string, string | null>` function for when multiple attributes depend on each other:
+
+```ts
+// record form — each value is independently static or dynamic
+pose.as("input").attrs({
+  type: "text",
+  name: ({ field }) => field,
+  required: ({ required }) => (required ? "" : null),
+});
+
+// function form — whole object produced from props
+pose.as("a").attrs(({ url, external }) => ({
+  href: url,
+  target: external ? "_blank" : null,
+  rel: external ? "noopener noreferrer" : null,
+}));
+```
+
 **`.cls(value)`** — escape hatch for anything not in the builder. Accepts a raw class string or `(props) => string`.
 
 ```ts
@@ -84,7 +112,7 @@ pose
   .cls(({ active }) => (active ? "ring-2 ring-blue-500" : ""));
 ```
 
-**`.child(value | fn)`** — append children. Accepts a string, number, another `PozElement`, an array of those, or `(props: TProps) => any of the above`. Chainable.
+**`.child(value | fn)`** — append children. Accepts a string, number, another `PoseElement`, an array of those, or `(props: TProps) => any of the above`. Chainable.
 
 **`element(props)`** — render to an HTML string synchronously. If the bound schema has async validation, returns `Promise<string>`.
 
