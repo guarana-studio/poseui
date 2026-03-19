@@ -6,9 +6,10 @@ Type-safe HTML templating engine with a fluent Tailwind-compatible builder API.
 
 ## Packages
 
-| Package                       | Description            |
-| ----------------------------- | ---------------------- |
-| [`poseui`](./packages/poseui) | Core templating engine |
+| Package                       | Description                  |
+| ----------------------------- | ---------------------------- |
+| [`poseui`](./packages/poseui) | Core templating engine       |
+| [`@poseui/on`](./packages/on) | Typed DOM event registration |
 
 ## Install
 
