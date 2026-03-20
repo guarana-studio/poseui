@@ -1,4 +1,4 @@
-# Pose
+# poseui
 
 > ⚠️ Prototype — the API is unstable. The libraries haven't been published to NPM yet, use [the nightly builds](https://pkg.pr.new/~/guarana-studio/poseui).
 
