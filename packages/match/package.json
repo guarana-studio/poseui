@@ -1,0 +1,33 @@
+{
+  "name": "@poseui/match",
+  "version": "0.0.1",
+  "description": "Typed pattern matching for plain objects.",
+  "license": "MIT",
+  "author": "Ryuz <ryuzer@proton.me>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guarana-studio/poseui.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "module": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsdown": "^0.21.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

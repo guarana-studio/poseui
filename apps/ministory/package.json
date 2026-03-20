@@ -1,5 +1,5 @@
 {
-  "name": "@poseui/ministory",
+  "name": "ministory",
   "private": true,
   "type": "module",
   "module": "src/index.html",

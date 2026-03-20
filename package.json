@@ -5,11 +5,13 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "bun run --parallel --filter @poseui/* build && bun run --filter poseui build",
     "lint": "oxlint",
     "fmt": "oxfmt",
     "prepare": "husky",
     "docs:dev": "bunx docsome dev DOCS.md",
-    "docs:build": "bunx docsome build DOCS.md"
+    "docs:build": "bunx docsome build DOCS.md",
+    "test": "bun run --parallel --filter '{poseui,@poseui/*}' test"
   },
   "devDependencies": {
     "husky": "^9.1.7",

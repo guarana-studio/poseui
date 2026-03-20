@@ -1,12 +1,15 @@
 import { it, expect, describe } from "bun:test";
-import pose, { PoseValidationError, div, createPose } from "./";
+import { PoseValidationError, div, createPose } from "./";
 import { z } from "zod";
+import { tailwind4 } from "./presets";
 
 // ---------------------------------------------------------------------------
 // Basic rendering
 // ---------------------------------------------------------------------------
 
 describe("basic rendering", () => {
+  const pose = createPose();
+
   it("creates a div", () => {
     expect(pose.as("div")()).toEqual("<div></div>");
   });
@@ -44,6 +47,8 @@ describe("basic rendering", () => {
 // ---------------------------------------------------------------------------
 
 describe("styling", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("applies a single static class", () => {
     expect(pose.as("div").flex()()).toEqual('<div class="flex"></div>');
   });
@@ -82,6 +87,8 @@ describe("styling", () => {
 // ---------------------------------------------------------------------------
 
 describe(".input()", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("infers props from schema output type", () => {
     const el = pose
       .as("div")
@@ -160,6 +167,8 @@ describe(".input()", () => {
 // ---------------------------------------------------------------------------
 
 describe("nesting", () => {
+  const pose = createPose();
+
   it("renders a nested PoseElement child", () => {
     const inner = pose.as("span").child("inner");
     const outer = pose.as("div").child(inner);
@@ -232,6 +241,8 @@ describe("nesting", () => {
 // ---------------------------------------------------------------------------
 
 describe(".when() predicate form", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("applies classes when predicate is true", () => {
     const el = pose
       .as("button")
@@ -319,6 +330,8 @@ describe(".when() predicate form", () => {
 // ---------------------------------------------------------------------------
 
 describe(".when() value switch form", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("applies matching case", () => {
     const el = pose
       .as("button")
@@ -416,6 +429,8 @@ describe(".when() value switch form", () => {
 // ---------------------------------------------------------------------------
 
 describe(".attr()", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("renders a static attribute", () => {
     expect(pose.as("a").attr("href", "/home")()).toEqual('<a href="/home"></a>');
   });
@@ -481,6 +496,8 @@ describe(".attr()", () => {
 // ---------------------------------------------------------------------------
 
 describe(".attrs()", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("renders a static record of attributes", () => {
     expect(pose.as("input").attrs({ type: "text", name: "email" })()).toEqual(
       '<input type="text" name="email"></input>',
@@ -591,6 +608,8 @@ describe(".attrs()", () => {
 // ---------------------------------------------------------------------------
 
 describe(".getClasses()", () => {
+  const pose = createPose({ presets: [tailwind4] });
+
   it("returns an empty string when no classes are applied", () => {
     expect(pose.as("div").getClasses()).toEqual("");
   });
@@ -667,8 +686,8 @@ describe(".getClasses()", () => {
 
 describe("createPose() and getAllClasses()", () => {
   it("createPose() returns a fresh independent instance", () => {
-    const a = createPose();
-    const b = createPose();
+    const a = createPose({ presets: [tailwind4] });
+    const b = createPose({ presets: [tailwind4] });
     a.as("div").flex().p(4);
     // b has no elements — its registry is empty
     expect(b.getAllClasses()).toEqual("");
@@ -680,13 +699,13 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("collects static classes from a single element", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     p.as("div").flex().items_center().gap(4);
     expect(p.getAllClasses()).toEqual("flex items-center gap-4");
   });
 
   it("collects static classes across multiple elements", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     p.as("button").px(4).py(2).rounded().font_semibold();
     p.as("span").text_xs().font_bold().text_color("slate-500");
     const all = p.getAllClasses();
@@ -705,7 +724,7 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("deduplicates classes shared across elements", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     p.as("div").flex().gap(4);
     p.as("section").flex().gap(4).p(8);
     const classes = p.getAllClasses().split(" ");
@@ -715,7 +734,7 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("does not include dynamic (function) class entries", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     p.as("div")
       .input(z.object({ active: z.boolean().default(false) }))
       .flex()
@@ -730,7 +749,7 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("picks up classes added through fluent chaining after .as()", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     // Each chained method calls derive(), which registers into the same registry
     p.as("div").flex().flex_col().items_center().justify_between().gap(6);
     const all = p.getAllClasses();
@@ -740,7 +759,7 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("collects static classes from .when() branches", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     p.as("button")
       .input(z.object({ variant: z.enum(["primary", "secondary"]).default("primary") }))
       .when("variant", {
@@ -756,7 +775,7 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("isolates registries — default pose export does not bleed into createPose()", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     // Build something on the isolated instance only
     p.as("div").shadow_xl().overflow_hidden();
     const isolated = p.getAllClasses();
@@ -771,7 +790,7 @@ describe("createPose() and getAllClasses()", () => {
   });
 
   it("getAllClasses() is stable across multiple calls", () => {
-    const p = createPose();
+    const p = createPose({ presets: [tailwind4] });
     p.as("div").flex().p(4).rounded();
     expect(p.getAllClasses()).toEqual(p.getAllClasses());
   });

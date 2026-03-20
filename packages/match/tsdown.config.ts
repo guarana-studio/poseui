@@ -1,7 +1,6 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/presets/index.ts"],
   platform: "neutral",
   dts: true,
 });

@@ -1,6 +1,6 @@
 {
   "name": "poseui",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Type-safe HTML templating engine on steroids",
   "license": "MIT",
   "author": "Ryuz <ryuzer@proton.me>",
@@ -17,6 +17,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./presets": {
+      "types": "./dist/presets/index.d.ts",
+      "import": "./dist/presets/index.js"
     }
   },
   "scripts": {
@@ -26,6 +30,9 @@
     "docs:build": "docsome build DOCS.md --outDir docs_dist",
     "docs:dev": "docsome dev DOCS.md",
     "scripts:components": "bun scripts/components.ts"
+  },
+  "dependencies": {
+    "@poseui/match": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",

@@ -118,7 +118,8 @@ describe(".target()", () => {
     events.mount(root);
 
     fire(root.querySelector("#btn")!, "click");
-    expect(captured).toBe(root.querySelector("#btn"));
+
+    expect(captured!).toBe(root.querySelector("#btn")!);
   });
 
   it("supports multiple event types on the same target", () => {
