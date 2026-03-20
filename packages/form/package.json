@@ -21,14 +21,13 @@
   },
   "scripts": {
     "build": "tsc && tsdown",
-    "test": "bun test"
+    "test": "bun test",
+    "cleanup": "rimraf dist node_modules"
   },
   "dependencies": {
     "@poseui/on": "workspace:*"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^20.8.4",
-    "@types/bun": "latest",
     "zod": "^4.3.6"
   },
   "peerDependencies": {

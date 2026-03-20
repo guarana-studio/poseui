@@ -156,7 +156,7 @@ function createMatchBuilder<TIn, TOut>(
 
     resolve(): any {
       const results = evaluate();
-      if (results.length === 0) return typeof "" === "string" ? "" : results;
+      if (results.length === 0) return "";
       if (typeof results[0] === "string") {
         return (results as string[]).join(" ");
       }

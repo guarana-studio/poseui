@@ -351,7 +351,7 @@ describe(".mount()", () => {
     events.target<HTMLButtonElement>(".btn").on("click", handler);
 
     const unmountA = events.mount(rootA);
-    const unmountB = events.mount(rootB);
+    const _unmountB = events.mount(rootB);
 
     fire(rootA.querySelector(".btn")!, "click");
     fire(rootB.querySelector(".btn")!, "click");

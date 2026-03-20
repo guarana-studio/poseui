@@ -29,16 +29,14 @@
     "test": "bun test",
     "docs:build": "docsome build DOCS.md --outDir docs_dist",
     "docs:dev": "docsome dev DOCS.md",
-    "scripts:components": "bun scripts/components.ts"
+    "cleanup": "rimraf dist node_modules"
   },
   "dependencies": {
     "@poseui/match": "workspace:*"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "docsome": "^0.0.1",
     "oxfmt": "^0.41.0",
-    "tsdown": "^0.21.4",
     "zod": "^4.3.6"
   },
   "peerDependencies": {

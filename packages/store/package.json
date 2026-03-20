@@ -1,7 +1,7 @@
 {
-  "name": "@poseui/on",
+  "name": "@poseui/store",
   "version": "0.0.1",
-  "description": "Typed DOM event registration.",
+  "description": "Typed store based on Signals.",
   "license": "MIT",
   "author": "Ryuz <ryuzer@proton.me>",
   "repository": {
@@ -23,6 +23,9 @@
     "build": "tsc && tsdown",
     "test": "bun test",
     "cleanup": "rimraf dist node_modules"
+  },
+  "dependencies": {
+    "alien-signals": "^3.1.2"
   },
   "peerDependencies": {
     "typescript": "^5"

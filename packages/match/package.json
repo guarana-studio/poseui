@@ -21,11 +21,8 @@
   },
   "scripts": {
     "build": "tsc && tsdown",
-    "test": "bun test"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "tsdown": "^0.21.4"
+    "test": "bun test",
+    "cleanup": "rimraf dist node_modules"
   },
   "peerDependencies": {
     "typescript": "^5"

@@ -2,7 +2,7 @@
 
 > ⚠️ Prototype — API is unstable
 
-Type-safe HTML templating engine with a fluent Tailwind-compatible builder API. A focused set of libraries for building web UIs in vanilla TypeScript — no framework required.
+Type-safe HTML for vanilla TypeScript. No framework, no virtual DOM, no compiler — just typed components, reactive state, and clean DOM bindings.
 
 ## Packages
 
@@ -10,14 +10,15 @@ Type-safe HTML templating engine with a fluent Tailwind-compatible builder API. 
 | ----------------------------------- | ---------------------------------------- |
 | [`poseui`](./packages/poseui)       | Core templating engine                   |
 | [`@poseui/on`](./packages/on)       | Typed DOM event registration             |
-| [`@poseui/match`](./packages/match) | Typed pattern matching for plain objects |
 | [`@poseui/form`](./packages/form)   | Typed form binding via Standard Schema   |
+| [`@poseui/store`](./packages/store) | Reactive state backed by alien-signals   |
+| [`@poseui/match`](./packages/match) | Typed pattern matching for plain objects |
 
 ---
 
 ## `poseui`
 
-Renders typed HTML strings from a fluent builder API. Zero dependencies. Fully synchronous.
+Fluent builder that produces typed HTML strings. CSS is your concern — pose just builds the markup.
 
 ```ts
 import { createPose } from "poseui";
@@ -51,23 +52,18 @@ const button = pose
 
 button({ variant: "primary" });
 // → <button class="px-4 py-2 rounded font-semibold transition bg-indigo-600 text-white">Submit</button>
-
-button({ variant: "secondary", disabled: true });
-// → <button class="px-4 py-2 rounded font-semibold transition bg-slate-200 text-slate-900 opacity-50 cursor-not-allowed">Cancel</button>
 ```
 
 ```bash
 bun add poseui
-bun add zod  # or valibot, arktype, any Standard Schema lib
+bun add zod  # or valibot, arktype — any Standard Schema lib
 ```
-
-See [`poseui`](./packages/poseui) for the full API reference.
 
 ---
 
 ## `@poseui/on`
 
-Typed DOM event registration. Declare targets and handlers up front, activate them against a DOM subtree when you're ready, clean up with a single function call.
+Typed DOM event registration. Declare targets and handlers up front, mount when your HTML is ready, clean up with a single call.
 
 ```ts
 import { createEventMap } from "@poseui/on";
@@ -75,33 +71,24 @@ import { createEventMap } from "@poseui/on";
 const events = createEventMap();
 
 events.target<HTMLButtonElement>("#submit").on("click", (e) => {
-  e.currentTarget.disabled = true; // e.currentTarget is HTMLButtonElement — no cast
+  e.currentTarget.disabled = true;
 });
 
-events.target<HTMLInputElement>(".search").on("input", (e) => console.log(e.currentTarget.value));
-
-events
-  .targets<HTMLLIElement>("ul li")
-  .on("mouseenter", (e) => e.currentTarget.classList.add("hovered"))
-  .on("mouseleave", (e) => e.currentTarget.classList.remove("hovered"));
+events.targets<HTMLInputElement>("form input").on("change", () => store.getState().markDirty());
 
 const unmount = events.mount(document.querySelector("#app"));
-
-// Full cleanup when navigating away or tearing down
-unmount();
+unmount(); // removes every listener at once
 ```
 
 ```bash
 bun add @poseui/on
 ```
 
-See [`@poseui/on`](./packages/on) for the full API reference.
-
 ---
 
 ## `@poseui/form`
 
-Typed form binding via Standard Schema. Attach a Zod, Valibot, or ArkType schema to any `<form>` element and get fully typed values on submission, per-field error state, and optional live validation — without owning your markup or dictating how errors are rendered.
+Bind any `<form>` element to a Standard Schema. Typed values on submit, per-field errors, optional live validation — without touching your markup.
 
 ```ts
 import { createForm } from "@poseui/form";
@@ -110,47 +97,73 @@ import { z } from "zod";
 const form = createForm({
   target: "#signup",
   schema: z.object({
-    name: z.string().min(1, "Name is required"),
-    email: z.email("Invalid email"),
+    email: z.string().email("Invalid email"),
     age: z.coerce.number().min(18, "Must be 18 or older"),
   }),
+  validateOn: "change",
   onSubmit(values) {
-    // values.name  → string
-    // values.email → string
-    // values.age   → number  (coerced from the string FormData gives you)
-    console.log(values);
+    // values.email → string, values.age → number
+    api.send(values);
   },
-  onError(issues) {
-    console.log(form.errors());
-    // → { name: ["Name is required"], age: ["Must be 18 or older"] }
+  onError() {
+    store.getState().setErrors(form.errors());
   },
-  validateOn: "change", // "submit" | "change" | "input"
 });
 
 const unmount = form.mount();
-
-// Read current values at any time without submitting:
-const result = form.values();
-if (result.ok) console.log(result.data); // fully typed
-
-// Programmatic submission — useful for buttons outside the <form>:
-document.querySelector("#external-btn")?.addEventListener("click", () => form.submit());
-
-// Tear down when done:
-unmount();
 ```
 
 ```bash
 bun add @poseui/form
 ```
 
-See [`@poseui/form`](./packages/form) for the full API reference.
+---
+
+## `@poseui/store`
+
+Reactive state backed by [alien-signals](https://github.com/stackblitz/alien-signals). Familiar if you know zustand — `createStore`, `getState`, `setState`, `subscribe` — plus `bind()`, which connects state directly to a pose element and handles re-rendering automatically.
+
+```ts
+import { createStore, effectScope } from "@poseui/store";
+
+const store = createStore<{
+  errors: Record<string, string[]>;
+  dirty: boolean;
+  setErrors: (e: Record<string, string[]>) => void;
+  markDirty: () => void;
+}>()((set) => ({
+  errors: {},
+  dirty: false,
+  setErrors: (errors) => set({ errors }),
+  markDirty: () => set({ dirty: true }),
+}));
+
+// Re-renders only when errors change — other state changes are ignored
+const stop = effectScope(() => {
+  store.bind(
+    document.getElementById("errors")!,
+    (s) => s.errors,
+    (errors) =>
+      Object.values(errors)
+        .flat()
+        .map((msg) => errorMsg({ message: msg }))
+        .join(""),
+  );
+});
+
+stop(); // tears down all bindings at once
+```
+
+```bash
+bun add @poseui/store
+bun add alien-signals
+```
 
 ---
 
 ## `@poseui/match`
 
-Typed pattern matching for plain objects. Chain `.when()` conditions, collect results with `.resolve()`, `.first()`, `.last()`, or `.all()`. Default output type is `string` — no annotation needed for class string composition.
+Typed pattern matching for plain objects. Chain `.when()` conditions and collect results — the default output type is `string`, making it ergonomic for building class strings.
 
 ```ts
 import { match } from "@poseui/match";
@@ -160,49 +173,128 @@ const classes = match({ variant: "primary", size: "lg", disabled: true })
     primary: "bg-indigo-600 text-white",
     secondary: "bg-slate-200 text-slate-900",
   })
-  .when("size", {
-    sm: "px-2 py-1 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
-  })
+  .when("size", { sm: "px-2 py-1 text-sm", lg: "px-6 py-3 text-lg" })
   .when(({ disabled }) => disabled, "opacity-50 cursor-not-allowed")
   .resolve();
 // → "bg-indigo-600 text-white px-6 py-3 text-lg opacity-50 cursor-not-allowed"
-```
-
-Pairs naturally with `poseui` via `.cls()`:
-
-```ts
-const button = pose
-  .as("button")
-  .input(
-    z.object({
-      variant: z.enum(["primary", "secondary"]).default("primary"),
-      size: z.enum(["sm", "md", "lg"]).default("md"),
-      disabled: z.boolean().default(false),
-    }),
-  )
-  .cls((props) =>
-    match(props)
-      .when("variant", {
-        primary: "bg-indigo-600 text-white hover:bg-indigo-700",
-        secondary: "bg-slate-200 text-slate-900 hover:bg-slate-300",
-      })
-      .when("size", {
-        sm: "px-2 py-1 text-sm",
-        md: "px-4 py-2 text-base",
-        lg: "px-6 py-3 text-lg",
-      })
-      .when(({ disabled }) => disabled, "opacity-50 cursor-not-allowed")
-      .resolve(),
-  );
 ```
 
 ```bash
 bun add @poseui/match
 ```
 
-See [`@poseui/match`](./packages/match) for the full API reference.
+---
+
+## Putting it together
+
+All five packages compose without coupling. Here's what a real contact form looks like when each package does its job:
+
+```ts
+import { createPose } from "poseui";
+import { tailwind4 } from "poseui/tailwind4";
+import { createEventMap } from "@poseui/on";
+import { createForm } from "@poseui/form";
+import { createStore, effectScope } from "@poseui/store";
+import { z } from "zod";
+
+const pose = createPose({ presets: [tailwind4] });
+
+// ── Components ────────────────────────────────────────────────
+
+const errorMsg = pose
+  .as("p")
+  .text_sm()
+  .text_color("red-500")
+  .mt(1)
+  .input(z.object({ message: z.string() }))
+  .child(({ message }) => message);
+
+const submitBtn = pose
+  .as("button")
+  .px(6)
+  .py(2)
+  .rounded()
+  .font_semibold()
+  .transition()
+  .input(z.object({ disabled: z.boolean().default(false) }))
+  .when(
+    ({ disabled }) => disabled,
+    (b) => b.opacity(40).cursor_not_allowed(),
+  )
+  .when(
+    ({ disabled }) => !disabled,
+    (b) => b.bg("indigo-600").text_color("white"),
+  )
+  .attr("type", "submit")
+  .child("Send message");
+
+// ── Store ─────────────────────────────────────────────────────
+
+const store = createStore<{
+  errors: Record<string, string[]>;
+  dirty: boolean;
+  setErrors: (e: Record<string, string[]>) => void;
+  clearErrors: () => void;
+  markDirty: () => void;
+}>()((set) => ({
+  errors: {},
+  dirty: false,
+  setErrors: (errors) => set({ errors }),
+  clearErrors: () => set({ errors: {} }),
+  markDirty: () => set({ dirty: true }),
+}));
+
+// ── Form ──────────────────────────────────────────────────────
+
+const form = createForm({
+  target: "#contact",
+  schema: z.object({
+    email: z.string().email("Invalid email"),
+    message: z.string().min(10, "At least 10 characters"),
+  }),
+  validateOn: "change",
+  onSubmit() {
+    store.getState().clearErrors();
+  },
+  onError() {
+    store.getState().setErrors(form.errors());
+  },
+});
+
+form.mount();
+
+// ── Bindings ──────────────────────────────────────────────────
+
+effectScope(() => {
+  store.bind(
+    document.getElementById("errors")!,
+    (s) => s.errors,
+    (errors) =>
+      Object.values(errors)
+        .flat()
+        .map((msg) => errorMsg({ message: msg }))
+        .join(""),
+  );
+  store.bind(
+    document.querySelector("[type=submit]")!,
+    (s) => s.dirty,
+    (dirty) => submitBtn({ disabled: !dirty }),
+  );
+});
+
+// ── Events ────────────────────────────────────────────────────
+
+const events = createEventMap();
+events.target<HTMLTextAreaElement>("#message").on("input", (e) => {
+  document.getElementById("char-count")!.textContent = `${e.currentTarget.value.length} / 500`;
+});
+events
+  .targets<HTMLInputElement | HTMLTextAreaElement>("#contact input, #contact textarea")
+  .on("change", () => store.getState().markDirty());
+events.mount();
+```
+
+`poseui` defines components. `@poseui/store` owns state. `@poseui/form` runs validation. `@poseui/on` wires events. Each does one thing and composes cleanly with the rest.
 
 ---
 

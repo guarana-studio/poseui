@@ -4,16 +4,14 @@
   "type": "module",
   "module": "src/index.html",
   "scripts": {
-    "build": "bun build src/index.html",
-    "dev": "bun --hot src/index.html"
+    "build": "bun build src/index.html --outdir dist",
+    "dev": "bun --hot src/index.html",
+    "cleanup": "rimraf dist node_modules"
   },
   "dependencies": {
     "dedent": "^1.7.2",
     "poseui": "workspace:*",
     "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
