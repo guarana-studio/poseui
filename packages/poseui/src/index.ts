@@ -478,7 +478,9 @@ export function createBuilder<
       return applyBranch(
         (props) =>
           // Use match internally to evaluate the predicate
-          match<Record<string, unknown>>(props as Record<string, unknown>)
+          match<Record<string, unknown>, PoseElement<TProps, undefined>>(
+            props as Record<string, unknown>,
+          )
             .when(pred as (v: Record<string, unknown>) => boolean, () =>
               apply(createBlankBuilder<TProps>(state.presets)),
             )
@@ -499,21 +501,10 @@ export function createBuilder<
       }
     }
 
-    return applyBranch(
-      (props) =>
-        // Use match internally to switch on the key
-        match<TProps>(props)
-          .when(
-            key as keyof TProps,
-            Object.fromEntries(
-              Object.entries(cases).map(([k, branchFn]) => [
-                k,
-                () => branchFn(createBlankBuilder<TProps>(state.presets)),
-              ]),
-            ) as any,
-          )
-          .first() ?? null,
-    );
+    return applyBranch((props) => {
+      const branchFn = cases[props[key] as PropertyKey];
+      return branchFn ? branchFn(createBlankBuilder<TProps>(state.presets)) : null;
+    });
   };
 
   // ---------------------------------------------------------------------------

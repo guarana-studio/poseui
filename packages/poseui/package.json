@@ -24,7 +24,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsc && tsdown",
     "fmt": "oxfmt",
     "test": "bun test",
     "docs:build": "docsome build DOCS.md --outDir docs_dist",

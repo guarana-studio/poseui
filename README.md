@@ -20,7 +20,7 @@ Renders typed HTML strings from a fluent builder API. Zero dependencies. Fully s
 
 ```ts
 import { createPose } from "poseui";
-import { tailwind4 } from "poseui/tailwind4";
+import { tailwind4 } from "poseui/presets";
 import { z } from "zod";
 
 const pose = createPose({ presets: [tailwind4] });

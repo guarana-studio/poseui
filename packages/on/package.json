@@ -20,7 +20,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsc && tsdown",
     "test": "bun test"
   },
   "devDependencies": {
