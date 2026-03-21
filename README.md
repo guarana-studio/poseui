@@ -22,7 +22,7 @@ Fluent builder that produces typed HTML strings. CSS is your concern — pose ju
 
 ```ts
 import { createPose } from "poseui";
-import { tailwind4 } from "poseui/presets";
+import { tailwind4 } from "poseui/presets/tailwind4";
 import { z } from "zod";
 
 const pose = createPose({ presets: [tailwind4] });

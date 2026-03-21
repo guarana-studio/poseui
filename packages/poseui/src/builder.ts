@@ -19,6 +19,9 @@ import type {
   Pose,
   BuilderState,
   CreatePoseOptions,
+  EventMap,
+  HandlerContext,
+  Component,
 } from "./types";
 
 // Re-export everything consumers need from a single entry point.
@@ -36,6 +39,9 @@ export type {
   Pose,
   BuilderState,
   CreatePoseOptions,
+  EventMap,
+  HandlerContext,
+  Component,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -345,6 +351,69 @@ export function createBuilder<
       registry: state.registry,
       presets: state.presets,
     });
+
+  // .handler() — closes the builder into a mountable Component
+  //
+  // The returned Component is callable (same signature as the PoseElement) so
+  // it can be used as a .child() or html`` slot without needing an independent
+  // mount — the outermost parent's single .mount() call activates all listeners
+  // for the whole tree via the shared EventMap.
+
+  el.handler = <TEvents extends EventMap>(
+    fn: (ctx: HandlerContext<TProps, TEvents>) => void,
+  ): Component<TProps, TSchema, TEvents> => {
+    // Shared schema resolution — used by the call signature, mount(), and render().
+    function resolve(raw: unknown): TProps {
+      if (!state.schema) return (raw ?? {}) as TProps;
+      const result = runSchema(state.schema, raw ?? {});
+      if (result instanceof Promise) {
+        throw new Error(
+          "PoseElement.handler: async schemas are not supported in .mount(). " +
+            "Resolve the schema before mounting.",
+        );
+      }
+      return result as TProps;
+    }
+
+    // The call signature renders to an HTML string — identical to the
+    // underlying PoseElement, allowing Component to compose as a child.
+    function component(...args: CallArgs<TProps, TSchema>): any {
+      const props = (args[0] ?? {}) as TProps;
+      if (!state.schema) return buildHtml(props);
+      const result = runSchema(state.schema, props);
+      if (result instanceof Promise) return result.then((v) => buildHtml(v as TProps));
+      return buildHtml(result as TProps);
+    }
+
+    component.mount = function (
+      rootEl: Element,
+      events: TEvents,
+      ...args: CallArgs<TProps, TSchema>
+    ): () => void {
+      // Initial render.
+      const initialProps = resolve(args[0]);
+      rootEl.innerHTML = buildHtml(initialProps);
+
+      // render() re-runs schema resolution and swaps innerHTML.
+      // Events stay mounted — @poseui/on binds to selectors, not nodes.
+      function render(props?: Partial<TProps>): void {
+        rootEl.innerHTML = buildHtml(resolve(props));
+      }
+
+      // Run the handler so the caller can wire listeners and subscriptions.
+      fn({ input: initialProps, el: rootEl, events, render });
+
+      // Mount events scoped to this element and return the cleanup.
+      return events.mount(rootEl);
+    };
+
+    // Mark as a PoseElement-compatible callable so renderChild and
+    // template spread detection both recognise it correctly.
+    (component as any).__pose = true;
+    (component as any).__state = state;
+
+    return component as unknown as Component<TProps, TSchema, TEvents>;
+  };
 
   // Apply presets
 

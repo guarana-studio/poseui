@@ -1,12 +1,12 @@
 // =============================================================================
-// poseui/template — html`` tagged template literal
+// html`` tagged template literal
 //
 // Composes PoseElements (and raw values) into a larger HTML structure while
 // preserving the props-threading contract of the core engine.
 //
 // Usage:
 //
-//   import { html } from "poseui/template";
+//   import { html } from "poseui";
 //
 //   const loginCard = html<Props>`
 //     <div ${card}>

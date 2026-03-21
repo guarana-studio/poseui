@@ -1,8 +1,8 @@
-# Pose
+# poseui
 
 Type-safe HTML templating engine with a fluent utility-class builder API. Inspired by [gpui](https://www.gpui.rs/).
 
-Zero runtime dependencies. Fully synchronous. Emits HTML with utility class names.
+Zero dependencies. Fully synchronous. Emits HTML with utility class names.
 
 ```ts
 import pose from "poseui";
@@ -61,8 +61,12 @@ import { extractorPoseui } from "poseui/unocss";
 import { defineConfig, presetWind4, transformerDirectives, transformerVariantGroup } from "unocss";
 
 export default defineConfig({
-  presets: [presetWind4()],
-  theme: {}, // Add theme vars
+  presets: [
+    presetWind4({
+      dark: "class",
+    }),
+  ],
+  theme: {}, // css vars
   extractors: [extractorPoseui()],
   transformers: [transformerDirectives(), transformerVariantGroup()],
   outputToCssLayers: {
@@ -176,9 +180,11 @@ button.getClasses({ variant: "secondary", disabled: true });
 
 **`element(props)`** — render to an HTML string. Synchronous unless the bound schema uses async validation, in which case it returns `Promise<string>`.
 
+**`.handler(fn)`** — close the builder into a mountable component. The result is callable like a regular element (returns an HTML string) and can be nested freely inside other elements or `html\`\`` templates. See [Components](#components).
+
 ## Composition
 
-`PoseElement` instances are valid children of other elements:
+`PoseElement` and `Component` instances are valid children of other elements. Since `.handler()` returns a callable, components compose identically to plain elements:
 
 ```ts
 const avatar = pose.as("img").rounded_full().w(8).h(8);
@@ -195,12 +201,93 @@ card();
 // → <div class="p-4 rounded shadow-md"><img class="rounded-full w-8 h-8"></img><p class="text-sm">Hello</p></div>
 ```
 
+## Components
+
+`.handler()` closes the builder into a mountable component. The result retains the element's call signature — it renders to an HTML string just like any `PoseElement` — and additionally exposes `.mount(el, events, props?)` which writes `innerHTML`, runs the handler to wire event listeners, and returns a cleanup function.
+
+```ts
+import { createPose } from "poseui";
+import { createEventMap } from "@poseui/on";
+import { z } from "zod";
+
+const pose = createPose();
+
+const counter = pose
+  .as("div")
+  .cls("flex items-center gap-4")
+  .input(z.object({ count: z.number().default(0) }))
+  .child(({ count }) => pose.as("span").cls("text-2xl font-bold").child(String(count)))
+  .child(pose.as("button").cls("btn").attr("type", "button").child("+"))
+  .handler(({ input, events, render }) => {
+    let count = input.count;
+
+    events.target<HTMLButtonElement>("button").on("click", () => {
+      render({ count: ++count });
+    });
+  });
+
+const unmount = counter.mount(document.querySelector("#app")!, createEventMap());
+
+unmount(); // removes all listeners
+```
+
+The handler receives a context object with four keys:
+
+**`input`** — the schema-validated props for the initial render. Transforms and defaults are already applied.
+
+**`el`** — the root `Element` passed to `.mount()`. Already has `innerHTML` set when the handler runs.
+
+**`events`** — the event map passed to `.mount()`. Wire listeners here — they are scoped to `el` when `events.mount(el)` is called automatically after the handler returns. Pass a `createEventMap()` instance from [`@poseui/on`](../on).
+
+**`render(props?)`** — re-render the component with new props. Swaps `el.innerHTML` without touching the event listeners — since `@poseui/on` binds to CSS selectors rather than specific nodes, listeners automatically apply to the new children. Runs schema validation and defaults on every call.
+
+```ts
+.handler(({ input, el, events, render }) => {
+  // input  — validated initial props
+  // el     — the root DOM element, innerHTML already set
+  // events — wire @poseui/on listeners here
+  // render — call to re-render; events stay mounted
+})
+```
+
+`.mount()` returns the cleanup function from `events.mount()` — calling it removes every listener the event map attached.
+
+### Nesting components
+
+Because `.handler()` returns something callable, components nest inside other elements and components exactly like plain `PoseElement` instances. A single `.mount()` on the outermost parent activates all event listeners for the whole tree — no manual mounting per child needed.
+
+```ts
+const saveBtn = pose
+  .as("button")
+  .cls("btn-primary")
+  .attr("type", "submit")
+  .child("Save")
+  .handler(({ events }) => {
+    events.target<HTMLButtonElement>("button[type=submit]").on("click", save);
+  });
+
+const form = pose
+  .as("form")
+  .cls("space-y-4")
+  .child(saveBtn) // saveBtn renders as HTML here
+  .handler(({ events }) => {
+    events.target<HTMLFormElement>("form").on("submit", handleSubmit);
+  });
+
+// One mount — both form and saveBtn listeners activated via shared EventMap
+const unmount = form.mount(document.querySelector("#app")!, createEventMap());
+
+unmount(); // removes every listener
+```
+
+The shared `EventMap` is scoped to the mount root, so each component's selectors are queried within that subtree. Inner components render as HTML strings during the parent's build pass — their handlers register listeners on the same events instance, which is mounted once at the top.
+
 ## html\`\` tagged templates
 
 For complex layouts that mix multiple elements, structural HTML, and raw markup, the `html` tagged template literal composes `PoseElement` instances into a larger template while keeping props threaded through the whole tree.
 
 ```ts
-import { html } from "poseui/template";
+import { html } from "poseui";
 ```
 
 ### Slot types
@@ -310,7 +397,7 @@ nav({ external: false });
 A compiled template is just a `(props?) => string` function, so it slots naturally into another template as a function slot. The `slot()` helper is an explicit alias for the same thing — use whichever reads more clearly:
 
 ```ts
-import { html, slot } from "poseui/template";
+import { html, slot } from "poseui";
 
 type Props = { username: string };
 
@@ -329,7 +416,7 @@ page({ username: "Ada" });
 ### Full example
 
 ```ts
-import { html } from "poseui/template";
+import { html } from "poseui";
 import { createPose } from "poseui";
 import { z } from "zod";
 

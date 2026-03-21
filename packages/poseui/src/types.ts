@@ -229,6 +229,134 @@ export interface PoseElement<
 
   child(fn: (props: TProps) => ChildValue): PoseElement<TProps, TSchema, TTag>;
   child(value: ChildValue): PoseElement<TProps, TSchema, TTag>;
+
+  /**
+   * Close the builder into a mountable component.
+   *
+   * The handler receives { input, events } — wire all DOM event listeners
+   * here using the provided events map (pass any @poseui/on EventMap).
+   * The handler runs once per .mount() call, after innerHTML is written
+   * and before events.mount() is called.
+   *
+   * @example
+   * const submitBtn = pose
+   *   .as("button")
+   *   .input(z.object({ disabled: z.boolean().default(false) }))
+   *   .cls("btn-primary")
+   *   .attr("type", "submit")
+   *   .child("Send")
+   *   .handler(({ input, events }) => {
+   *     events.target<HTMLButtonElement>("button[type=submit]")
+   *       .on("click", () => form.submit());
+   *   });
+   *
+   * const unmount = submitBtn.mount(document.querySelector("#root"), events);
+   */
+  handler<TEvents extends EventMap>(
+    fn: (ctx: HandlerContext<TProps, TEvents>) => void,
+  ): Component<TProps, TSchema, TEvents>;
+}
+
+// ---------------------------------------------------------------------------
+// Component — returned by .handler(), mountable into the DOM
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimal structural interface for an event map accepted by .handler().
+ *
+ * Defined here so poseui carries zero hard dependency on @poseui/on.
+ * @poseui/on's EventMap satisfies this structurally — pass it directly.
+ */
+export interface EventMap {
+  mount(root?: Element | Document): () => void;
+}
+
+/**
+ * The context object passed into a .handler() callback.
+ *
+ * Mirrors oRPC's { input, context } shape — input is the schema-validated
+ * props, events is a structural EventMap (typically @poseui/on's EventMap)
+ * scoped to this component's root element.
+ */
+export interface HandlerContext<TProps extends Record<string, unknown>, TEvents extends EventMap> {
+  /** Schema-validated props for this render. */
+  readonly input: TProps;
+  /** The root DOM element this component was mounted into. */
+  readonly el: Element;
+  /** Event map instance passed in at mount time — wire listeners here. */
+  readonly events: TEvents;
+  /**
+   * Re-render the component with new props without tearing down event
+   * listeners. Runs schema validation and defaults, then swaps el.innerHTML.
+   * Since @poseui/on binds to selectors rather than nodes, existing listeners
+   * automatically apply to the new children.
+   *
+   * @example
+   * .handler(({ render, events }) => {
+   *   store.subscribe((state) => render({ disabled: !state.dirty }));
+   *   events.target<HTMLButtonElement>("button").on("click", submit);
+   * });
+   */
+  readonly render: (props?: Partial<TProps>) => void;
+}
+
+/**
+ * A mountable component produced by .handler().
+ *
+ * Component retains the underlying element's call signature so it can be
+ * composed as a child of other elements or html`` templates — calling it
+ * returns the rendered HTML string exactly as the original PoseElement would.
+ *
+ * .mount(el, events, props?) additionally writes that HTML into el, runs the
+ * handler to wire event listeners, and calls events.mount(el). Returns a
+ * cleanup function that removes every listener.
+ *
+ * Because Component is callable, nested components participate in a single
+ * mount call from the topmost parent — no manual mounting per child needed:
+ *
+ * @example
+ * const saveBtn = pose
+ *   .as("button")
+ *   .cls("btn-primary")
+ *   .attr("type", "submit")
+ *   .child("Save")
+ *   .handler(({ events }) => {
+ *     events.target<HTMLButtonElement>("button[type=submit]").on("click", save);
+ *   });
+ *
+ * const form = pose
+ *   .as("form")
+ *   .child(saveBtn)          // saveBtn renders as HTML — callable
+ *   .handler(({ events }) => {
+ *     events.target<HTMLFormElement>("form").on("submit", handleSubmit);
+ *   });
+ *
+ * // Single mount — events from both form and saveBtn are activated together
+ * const unmount = form.mount(document.querySelector("#app"), createEventMap());
+ *
+ * unmount(); // removes all listeners, including saveBtn's
+ */
+export interface Component<
+  TProps extends Record<string, unknown>,
+  TSchema extends StandardSchemaV1 | undefined = undefined,
+  TEvents extends EventMap = EventMap,
+> {
+  /**
+   * Render to an HTML string — same as calling the original PoseElement.
+   * Allows Component to be used as a child inside other elements or html``
+   * templates without needing to mount it independently.
+   */
+  (...args: CallArgs<TProps, TSchema>): RenderReturn<TSchema>;
+
+  /**
+   * Render the element's HTML into `el`, run the handler to wire event
+   * listeners, and call events.mount(el).
+   *
+   * Props follow the same optionality rules as the call signature above.
+   * Returns the cleanup function from events.mount() — call it to remove
+   * every listener this mount attached.
+   */
+  mount(el: Element, events: TEvents, ...args: CallArgs<TProps, TSchema>): () => void;
 }
 
 // ---------------------------------------------------------------------------
