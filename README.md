@@ -365,7 +365,7 @@ const unmount = submitBtn.mount(document.querySelector("[type=submit]")!, events
 });
 ```
 
-## `poseui` defines components. `@poseui/store` owns state. `@poseui/form` runs validation. `@poseui/on` wires events. Each does one thing and composes cleanly with the rest.
+> `poseui` defines components. `@poseui/store` owns state. `@poseui/form` runs validation. `@poseui/on` wires events. Each does one thing and composes cleanly with the rest.
 
 ## License
 
