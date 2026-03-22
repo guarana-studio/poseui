@@ -2,7 +2,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "templates/*"
   ],
   "scripts": {
     "build": "bun run --filter './packages/*' build",
@@ -10,8 +11,8 @@
     "lint": "oxlint",
     "fmt": "oxfmt",
     "prepare": "husky",
-    "docs:dev": "docsome dev DOCS.md",
-    "docs:build": "docsome build DOCS.md",
+    "docs:dev": "bunx docsome dev DOCS.md",
+    "docs:build": "bunx docsome build DOCS.md",
     "test": "bun run --parallel --filter '{poseui,@poseui/*}' test"
   },
   "devDependencies": {
