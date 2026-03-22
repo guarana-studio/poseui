@@ -249,7 +249,7 @@ All five packages compose without coupling. Here's what a real contact form look
 
 ```ts
 import { createPose } from "poseui";
-import { tailwind4 } from "poseui/presets";
+import { tailwind4 } from "poseui/presets/tailwind4";
 import { createEventMap } from "@poseui/on";
 import { createForm } from "@poseui/form";
 import { createStore, effectScope } from "@poseui/store";
@@ -267,6 +267,8 @@ const errorMsg = pose
   .input(z.object({ message: z.string() }))
   .child(({ message }) => message);
 
+// submitBtn is a full component — styles, validation, event wiring,
+// and re-rendering are all defined in one place.
 const submitBtn = pose
   .as("button")
   .px(6)
@@ -283,8 +285,18 @@ const submitBtn = pose
     ({ disabled }) => !disabled,
     (b) => b.bg("indigo-600").text_color("white"),
   )
+  .attr("disabled", ({ disabled }) => (disabled ? "" : null))
   .attr("type", "submit")
-  .child("Send message");
+  .child("Send message")
+  .handler(({ events, render }) => {
+    // Wire the click listener scoped to this component's root element.
+    events.target<HTMLButtonElement>("button[type=submit]").on("click", (e) => {
+      e.currentTarget.disabled = true;
+    });
+
+    // Re-render whenever dirty state changes — no external DOM reference needed.
+    store.subscribe((s) => render({ disabled: !s.dirty }));
+  });
 
 // ── Store ─────────────────────────────────────────────────────
 
@@ -333,28 +345,27 @@ effectScope(() => {
         .map((msg) => errorMsg({ message: msg }))
         .join(""),
   );
-  store.bind(
-    document.querySelector("[type=submit]")!,
-    (s) => s.dirty,
-    (dirty) => submitBtn({ disabled: !dirty }),
-  );
 });
 
-// ── Events ────────────────────────────────────────────────────
+// ── Mount ─────────────────────────────────────────────────────
 
+// submitBtn.mount() writes innerHTML, wires its own listeners, and returns
+// a cleanup. The shared EventMap also picks up the textarea character counter.
 const events = createEventMap();
+
 events.target<HTMLTextAreaElement>("#message").on("input", (e) => {
   document.getElementById("char-count")!.textContent = `${e.currentTarget.value.length} / 500`;
 });
 events
   .targets<HTMLInputElement | HTMLTextAreaElement>("#contact input, #contact textarea")
   .on("change", () => store.getState().markDirty());
-events.mount();
+
+const unmount = submitBtn.mount(document.querySelector("[type=submit]")!, events, {
+  disabled: true,
+});
 ```
 
-`poseui` defines components. `@poseui/store` owns state. `@poseui/form` runs validation. `@poseui/on` wires events. Each does one thing and composes cleanly with the rest.
-
----
+## `poseui` defines components. `@poseui/store` owns state. `@poseui/form` runs validation. `@poseui/on` wires events. Each does one thing and composes cleanly with the rest.
 
 ## License
 
