@@ -325,6 +325,58 @@ unmount(); // removes every listener
 
 The shared `EventMap` is scoped to the mount root, so each component's selectors are queried within that subtree. Inner components render as HTML strings during the parent's build pass — their handlers register listeners on the same events instance, which is mounted once at the top.
 
+### Reactive components with `.watch()`
+
+The `reactive` preset adds `.watch(store, selector)` to the builder — a declarative alternative to manually wiring `store.subscribe` inside `.handler()`. Install it alongside `@poseui/store`:
+
+```bash
+bun add @poseui/store
+```
+
+```ts
+import { createPose } from "poseui";
+import { reactive } from "poseui/presets/reactive";
+import { createEventMap } from "@poseui/on";
+import { createStore } from "@poseui/store";
+import { z } from "zod";
+
+const pose = createPose({ presets: [reactive] });
+
+const store = createStore((set) => ({
+  count: 0,
+  increment: () => set((s) => ({ count: s.count + 1 })),
+}));
+
+const counter = pose
+  .as("div")
+  .input(z.object({ count: z.number().default(0) }))
+  .child(
+    ({ count }) => `
+    <span>${count}</span>
+    <button id="inc">+</button>
+  `,
+  )
+  .on("#inc", "click", () => store.getState().increment())
+  .watch(store, (s) => ({ count: s.count }));
+
+counter.mount(document.querySelector("#app")!, createEventMap());
+```
+
+`.watch()` closes the builder into a `Component` — no `.handler()` needed. The subscription is set up and torn down automatically on mount and unmount. Multiple `.watch()` calls can be chained to subscribe to slices from different stores:
+
+```ts
+pose
+  .as("div")
+  .input(z.object({ count: z.number().default(0), name: z.string().default("") }))
+  .child(({ count, name }) => `${name}: ${count}`)
+  .watch(countStore, (s) => ({ count: s.count }))
+  .watch(userStore, (s) => ({ name: s.user?.name ?? "" }));
+```
+
+The selector is compared by value on every state change — re-renders only fire when the selected slice actually changes, regardless of what else changes in the store. On initial mount, current store state is read and used as props, so the component always renders with live data immediately.
+
+`.watch()` is compatible with `.on()` and works with any store that exposes `getState()` and `subscribe(selector, listener)` — not just `@poseui/store`.
+
 ## html\`\` tagged templates
 
 For complex layouts that mix multiple elements, structural HTML, and raw markup, the `html` tagged template literal composes `PoseElement` instances into a larger template while keeping props threaded through the whole tree.

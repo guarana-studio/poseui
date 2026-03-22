@@ -26,6 +26,10 @@
       "types": "./dist/presets/basecoat/index.d.ts",
       "import": "./dist/presets/basecoat/index.js"
     },
+    "./presets/reactive": {
+      "types": "./dist/presets/reactive/index.d.ts",
+      "import": "./dist/presets/reactive/index.js"
+    },
     "./unocss": {
       "types": "./dist/unocss/index.d.ts",
       "import": "./dist/unocss/index.js"
@@ -43,6 +47,7 @@
     "@poseui/match": "workspace:*"
   },
   "devDependencies": {
+    "@poseui/store": "workspace:*",
     "@unocss/core": "^66.6.7",
     "docsome": "^0.0.1",
     "oxfmt": "^0.41.0",

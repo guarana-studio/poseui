@@ -116,10 +116,10 @@ form({ username: "ada", error: "Invalid password" });
 
 `.handler()` closes a builder into a mountable component. It retains the element's call signature — still renderable as an HTML string — and gains `.mount(el, events, props?)` for writing `innerHTML`, wiring events, and getting a cleanup function back.
 
-Use `.on(selector, type, handler)` on the builder to register delegated event listeners that survive `render()` calls. Because `.on()` binds to the stable root element rather than inner nodes, the listeners stay active across every re-render — no `el.addEventListener` boilerplate needed inside `.handler()`. Use the `events` object for anything requiring the full `@poseui/on` API.
+Use `.on(selector, type, handler)` on the builder to register delegated event listeners that survive `render()` calls. Because `.on()` binds to the stable root element rather than inner nodes, the listeners stay active across every re-render. The handler may return a teardown function — if returned, it is called on unmount after all listeners are removed. Use it to unsubscribe from stores or cancel timers.
 
 ```ts
-import { createPose, html } from "poseui";
+import { createPose } from "poseui";
 import { createEventMap } from "@poseui/on";
 import { z } from "zod";
 
@@ -128,26 +128,49 @@ const pose = createPose({ presets: [tailwind4] });
 const counter = pose
   .as("div")
   .input(z.object({ count: z.number().default(0) }))
-  .flex()
-  .items_center()
-  .gap(4)
   .child(
-    ({ count }) => html`
-      <span class="text-2xl font-bold">${count}</span>
-      <button type="button">+</button>
-    `,
+    ({ count }) => `
+    <span class="text-2xl font-bold">${count}</span>
+    <button type="button">+</button>
+  `,
   )
   .on("button", "click", () => store.getState().increment())
   .handler(({ render }) => {
-    store.subscribe(
+    const unsub = store.subscribe(
       (s) => s.count,
       (count) => render({ count }),
     );
+    return unsub; // called on unmount — unsubscribes from the store
   });
 
 const unmount = counter.mount(document.querySelector("#app")!, createEventMap());
 unmount();
 ```
+
+For components that are purely driven by store state, the `reactive` preset adds `.watch(store, selector)` — eliminating the manual subscribe/teardown boilerplate entirely:
+
+```ts
+import { reactive } from "poseui/presets/reactive";
+
+const pose = createPose({ presets: [tailwind4, reactive] });
+
+const counter = pose
+  .as("div")
+  .input(z.object({ count: z.number().default(0) }))
+  .child(
+    ({ count }) => `
+    <span class="text-2xl font-bold">${count}</span>
+    <button type="button">+</button>
+  `,
+  )
+  .on("button", "click", () => store.getState().increment())
+  .watch(store, (s) => ({ count: s.count }));
+// no .handler() needed — subscription and teardown are automatic
+
+counter.mount(document.querySelector("#app")!, createEventMap());
+```
+
+The `reactive` preset is included in `poseui` — no extra package to install.
 
 ```bash
 bun add poseui
@@ -277,17 +300,18 @@ bun add @poseui/match
 
 ## Putting it together
 
-All five packages compose without coupling. Here's what a real contact form looks like when each package does its job:
+All packages compose without coupling. Here's what a real contact form looks like when each package does its job:
 
 ```ts
 import { createPose } from "poseui";
 import { tailwind4 } from "poseui/presets/tailwind4";
+import { reactive } from "poseui/presets/reactive";
 import { createEventMap } from "@poseui/on";
 import { createForm } from "@poseui/form";
 import { createStore, effectScope } from "@poseui/store";
 import { z } from "zod";
 
-const pose = createPose({ presets: [tailwind4] });
+const pose = createPose({ presets: [tailwind4, reactive] });
 
 // ── Components ────────────────────────────────────────────────
 
@@ -299,8 +323,8 @@ const errorMsg = pose
   .input(z.object({ message: z.string() }))
   .child(({ message }) => message);
 
-// submitBtn is a full component — styles, schema, delegated events,
-// and reactive re-rendering all defined in one chain.
+// submitBtn uses .on() for its click handler and .watch() for reactive
+// disabled state — no manual subscribe/teardown needed.
 const submitBtn = pose
   .as("button")
   .px(6)
@@ -323,12 +347,7 @@ const submitBtn = pose
   .on("button[type=submit]", "click", (e) => {
     (e.currentTarget as HTMLButtonElement).disabled = true;
   })
-  .handler(({ render }) => {
-    store.subscribe(
-      (s) => s.dirty,
-      (dirty) => render({ disabled: !dirty }),
-    );
-  });
+  .watch(store, (s) => ({ disabled: !s.dirty }));
 
 // ── Store ─────────────────────────────────────────────────────
 
@@ -381,8 +400,6 @@ effectScope(() => {
 
 // ── Mount ─────────────────────────────────────────────────────
 
-// The shared EventMap handles listeners that belong outside submitBtn's scope.
-// submitBtn's own click handler is wired via .on() and needs no entry here.
 const events = createEventMap();
 
 events.target<HTMLTextAreaElement>("#message").on("input", (e) => {
@@ -392,9 +409,7 @@ events
   .targets<HTMLInputElement | HTMLTextAreaElement>("#contact input, #contact textarea")
   .on("change", () => store.getState().markDirty());
 
-const unmount = submitBtn.mount(document.querySelector("[type=submit]")!, events, {
-  disabled: true,
-});
+const unmount = submitBtn.mount(document.querySelector("[type=submit]")!, events);
 ```
 
 > `poseui` defines components. `@poseui/store` owns state. `@poseui/form` runs validation. `@poseui/on` wires events. Each does one thing and composes cleanly with the rest.
