@@ -2,7 +2,6 @@ name: Continuous Integration
 on:
   push:
     branches: ["main"]
-
 jobs:
   install:
     name: Install dependencies
@@ -13,7 +12,10 @@ jobs:
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}
       - name: Install dependencies
         run: bun install
@@ -28,7 +30,10 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}
       - name: Build libs
         run: bun run build
@@ -51,7 +56,10 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -79,7 +87,10 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v4
         with:
-          path: node_modules
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}
       - name: Download build artifact
         uses: actions/download-artifact@v4
