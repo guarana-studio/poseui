@@ -162,12 +162,8 @@ form.mount();
 ```ts
 import { createStore } from "@poseui/store";
 
-const store = createStore<{
-  user: { name: string } | null;
-  login: (name: string) => void;
-}>()((set) => ({
-  user: null,
-  login: (name) => set({ user: { name } }),
+const store = createStore({ user: null as { name: string } | null }, (set) => ({
+  login: (name: string) => set({ user: { name } }),
 }));
 
 store.bind(
@@ -482,7 +478,7 @@ const cleanup = counter.mount(document.querySelector("#app"), createEventMap());
 // cleanup() removes all listeners
 ```
 
-`Component` retains the call signature of the underlying `PoseElement`, so it can be nested as a child inside other elements or `html\`\``templates without being independently mounted. A single`.mount()` call on the outermost parent activates all handlers for the entire tree.
+`Component` retains the call signature of the underlying `PoseElement`, so it can be nested as a child inside other elements or ` html` ``templates without being independently mounted. A single`.mount()` call on the outermost parent activates all handlers for the entire tree.
 
 `render()` swaps `el.innerHTML` and re-runs schema validation without calling `events.mount()` again — event listeners bound to CSS selectors (as `@poseui/on` does) automatically apply to the newly rendered children.
 
@@ -490,7 +486,7 @@ const cleanup = counter.mount(document.querySelector("#app"), createEventMap());
 
 ---
 
-#### `html\`\`` Tagged Template
+#### ` html` `` Tagged Template
 
 The `html` tagged template literal composes `PoseElement`s and raw values into larger HTML structures while threading props through the entire tree.
 
@@ -1277,7 +1273,7 @@ formB.unmount();
 
 ### @poseui/store
 
-`@poseui/store` is a reactive state management library backed by [alien-signals](https://github.com/stackblitz/alien-signals). Its API mirrors zustand/vanilla — `getState`, `setState`, `subscribe`, and `getInitialState` — making it immediately familiar to anyone coming from that ecosystem. One addition, `bind()`, closes the loop between state changes and DOM renders by connecting a store slice directly to an element's `innerHTML` via a poseui render function.
+`@poseui/store` is a reactive state management library backed by [alien-signals](https://github.com/stackblitz/alien-signals). Its API mirrors zustand/vanilla — `getState`, `setState`, `subscribe`, and `getInitialState` — making it immediately familiar to anyone coming from that ecosystem. One addition, `bind()`, closes the loop between state changes and DOM renders by connecting a store slice directly to an element's `innerHTML` via a render function.
 
 ---
 
@@ -1286,19 +1282,17 @@ formB.unmount();
 ```ts
 import { createStore } from "@poseui/store";
 
-const store = createStore<{
-  count: number;
-  user: User | null;
-  inc: () => void;
-  login: (user: User) => void;
-  reset: () => void;
-}>()((set, _get, api) => ({
-  count: 0,
-  user: null,
-  inc: () => set((s) => ({ count: s.count + 1 })),
-  login: (user) => set({ user }),
-  reset: () => set(api.getInitialState()),
-}));
+const store = createStore(
+  {
+    count: 0,
+    user: null as { name: string } | null,
+  },
+  (set, get, getInitialState) => ({
+    inc: () => set((s) => ({ count: s.count + 1 })),
+    login: (user: { name: string }) => set({ user }),
+    reset: () => set(getInitialState()),
+  }),
+);
 
 // Subscribe to a slice — listener fires only when count changes
 store.subscribe(
@@ -1318,46 +1312,62 @@ store.getState().inc();
 
 ---
 
-#### `createStore(creator)`
+#### `createStore(initialState, actions?)`
 
 ```ts
-// Single-call form — suitable for state without actions
-function createStore<T extends object>(creator: StateCreator<T>): StoreApi<T>;
+// State only — no actions
+function createStore<TState extends object>(initialState: TState): StoreApi<TState>;
 
-// Curried form — required when state includes actions
-function createStore<T extends object>(): (creator: StateCreator<T>) => StoreApi<T>;
+// State + actions — both types inferred automatically
+function createStore<TState extends object, TActions extends object>(
+  initialState: TState,
+  actions: (
+    set: SetState<TState>,
+    get: GetState<TState & TActions>,
+    getInitialState: () => TState,
+  ) => TActions,
+): StoreApi<TState & TActions>;
 ```
 
-Creates a reactive store. The `creator` function receives `set`, `get`, and the `api` object, and returns the initial state.
+Creates a reactive store. Pass initial state as a plain object as the first argument. Optionally pass an actions creator as the second argument — it receives `set`, `get`, and `getInitialState`, and returns only the action functions.
 
-**Use the curried form when state includes action functions.** TypeScript cannot infer `T` when the creator both produces and references the type in the same call — the curried form fixes `T` first, then takes the creator:
+**TypeScript infers everything — no type annotations or explicit generics are needed:**
 
 ```ts
-// ✓ Curried — T is explicit, inference works for actions
-const store = createStore<{ count: number; inc: () => void }>()((set) => ({
-  count: 0,
+// State only — T inferred from the object literal
+const store = createStore({ count: 0, name: "Ada" });
+
+// State + actions — both inferred, no annotation needed
+const store = createStore({ count: 0 }, (set, _get, getInitialState) => ({
   inc: () => set((s) => ({ count: s.count + 1 })),
+  reset: () => set(getInitialState()),
 }));
 
-// ✓ Single-call — fine when state is plain data with no self-referencing actions
-const store = createStore(() => ({ count: 0, name: "Ada" }));
+store.getState().count; // number  ✓
+store.getState().inc; // () => void  ✓
 ```
 
-The `creator` receives three arguments:
+The actions creator receives three arguments:
 
 - **`set(update)`** — merges a partial update into state (see [`.setState()`](#setstate))
-- **`get()`** — returns the current state snapshot synchronously
-- **`api`** — the full `StoreApi<T>` object, enabling actions to reference `api.getInitialState()` for reset patterns
+- **`get()`** — returns the current state snapshot synchronously, typed as `TState & TActions` so actions can call each other
+- **`getInitialState()`** — returns the original initial state frozen at construction time; the only thing `get()` cannot provide
 
 ```ts
-const store = createStore<{ count: number; reset: () => void }>()((set, _get, api) => ({
-  count: 5,
-  reset: () => set(api.getInitialState()),
+const store = createStore({ count: 0 }, (set, get, getInitialState) => ({
+  inc: () => set((s) => ({ count: s.count + 1 })),
+  // inter-action call via get():
+  incThenDouble: () => {
+    get().inc();
+    set((s) => ({ count: s.count * 2 }));
+  },
+  // reset via getInitialState():
+  reset: () => set(getInitialState()),
 }));
 
 store.setState({ count: 99 });
 store.getState().reset();
-store.getState().count; // → 5
+store.getState().count; // → 0
 ```
 
 ---
@@ -1387,20 +1397,28 @@ store.getState().count; // → 5
 ##### `.getInitialState()`
 
 ```ts
-getInitialState(): T
+getInitialState(): TState
 ```
 
-Returns the state object produced by the creator at store creation time. Never updated by `setState`. Useful as a reset reference inside actions:
+Returns the initial state object passed as the first argument to `createStore()`. Never updated by `setState`. Useful as a reset reference:
 
 ```ts
-reset: () => set(api.getInitialState());
+store.setState(store.getInitialState()); // reset externally
 ```
 
-Or externally:
+Or from within an action via the `getInitialState` argument:
 
 ```ts
-store.setState(store.getInitialState());
+const store = createStore({ count: 5 }, (set, _get, getInitialState) => ({
+  reset: () => set(getInitialState()),
+}));
+
+store.setState({ count: 99 });
+store.getState().reset();
+store.getState().count; // → 5
 ```
+
+Note: `getInitialState()` returns the plain state shape only — it does not include action functions.
 
 ---
 
@@ -1417,15 +1435,13 @@ store.setState({ count: 5 });
 store.setState((s) => ({ count: s.count + 1 }));
 ```
 
-Only the keys present in the update are changed — all other keys are preserved:
+Only the keys present in the update are changed — all other keys (including action functions) are preserved:
 
 ```ts
-const store = createStore(() => ({ a: 1, b: 2, c: 3 }));
+const store = createStore({ a: 1, b: 2, c: 3 });
 store.setState({ c: 99 });
 store.getState(); // → { a: 1, b: 2, c: 99 }
 ```
-
-Action functions included in state are also preserved through `setState` calls — only the keys explicitly in the partial update change.
 
 ---
 
@@ -1461,10 +1477,10 @@ const unsub = store.subscribe(
 );
 ```
 
-The selector form uses `alien-signals`' `computed` internally — the listener is skipped entirely when a `setState` changes other keys but leaves the selected value at the same reference. This makes it efficient for subscribing to individual slices of a larger state object:
+The selector form uses `alien-signals`' `computed` internally — the listener is skipped entirely when a `setState` changes other keys but leaves the selected value at the same reference:
 
 ```ts
-const store = createStore(() => ({ count: 0, name: "Ada" }));
+const store = createStore({ count: 0, name: "Ada" });
 store.subscribe((s) => s.count, listener);
 
 store.setState({ name: "Grace" }); // listener not called — count unchanged
@@ -1514,7 +1530,7 @@ const unsub = store.bind(
 The selector form is the preferred approach when the store holds multiple independent slices. It avoids unnecessary re-renders when unrelated parts of state change:
 
 ```ts
-const store = createStore(() => ({ count: 0, name: "Ada" }));
+const store = createStore({ count: 0, name: "Ada" });
 
 store.bind(
   document.getElementById("count-display")!,
@@ -1574,19 +1590,17 @@ stop();
 
 ##### Actions in the creator
 
-Actions are plain functions stored as part of the state object. They call `set` to update state and `get` to read it:
+Actions are plain functions returned by the actions creator. They call `set` to update state, `get` to read it (including other actions), and `getInitialState` for reset patterns:
 
 ```ts
-const store = createStore<{
-  count: number;
-  inc: () => void;
-  dec: () => void;
-  reset: () => void;
-}>()((set, _get, api) => ({
-  count: 0,
+const store = createStore({ count: 0 }, (set, get, getInitialState) => ({
   inc: () => set((s) => ({ count: s.count + 1 })),
   dec: () => set((s) => ({ count: s.count - 1 })),
-  reset: () => set(api.getInitialState()),
+  incThenDouble: () => {
+    get().inc();
+    set((s) => ({ count: s.count * 2 }));
+  },
+  reset: () => set(getInitialState()),
 }));
 
 store.getState().inc();
@@ -1595,18 +1609,13 @@ store.getState().dec();
 store.getState().count; // → 1
 ```
 
-Actions are included in the shallow merge contract — `setState({ count: 5 })` preserves all action functions alongside the updated `count`.
+Actions are preserved across `setState` calls — `setState({ count: 5 })` only changes `count`, leaving all action functions intact.
 
 ##### Driving form error state
 
 ```ts
-const store = createStore<{
-  errors: Record<string, string>;
-  setErrors: (e: Record<string, string>) => void;
-  clearErrors: () => void;
-}>()((set) => ({
-  errors: {},
-  setErrors: (errors) => set({ errors }),
+const store = createStore({ errors: {} as Record<string, string> }, (set) => ({
+  setErrors: (errors: Record<string, string>) => set({ errors }),
   clearErrors: () => set({ errors: {} }),
 }));
 
@@ -1631,9 +1640,8 @@ store.getState().clearErrors();
 `@poseui/store` pairs naturally with `@poseui/form` — the form drives validation and extracts typed values, while the store holds application state that changes in response. The store's `.subscribe()` (selector form) or `.bind()` then updates the DOM reactively:
 
 ```ts
-const appStore = createStore<{ user: User | null; login: (u: User) => void }>()((set) => ({
-  user: null,
-  login: (user) => set({ user }),
+const appStore = createStore({ user: null as { name: string } | null }, (set) => ({
+  login: (user: { name: string }) => set({ user }),
 }));
 
 const loginForm = createForm({
@@ -1750,17 +1758,6 @@ match({ count: 7, active: true })
 // → ["ring-2", "badge-7"]
 ```
 
-Use the predicate form for boolean props or any condition that cannot be expressed as a simple key lookup:
-
-```ts
-match({ a: true, b: true, c: false })
-  .when(({ a }) => a, "A")
-  .when(({ b }) => b, "B")
-  .when(({ c }) => c, "C")
-  .all();
-// → ["A", "B"]
-```
-
 ---
 
 ##### Key switch form
@@ -1769,7 +1766,7 @@ match({ a: true, b: true, c: false })
 .when(key: keyof TIn, cases: Partial<Record<TIn[K] & PropertyKey, TOut | ((value: TIn) => TOut)>>)
 ```
 
-Switches on the value of a specific key. Cases are `Partial` — an unmatched value simply contributes nothing. Like the predicate form, results can be static values or functions receiving the full input.
+Switches on the value of a specific key. Cases are `Partial` — an unmatched value simply contributes nothing.
 
 ```ts
 match({ variant: "primary" })
@@ -1779,11 +1776,6 @@ match({ variant: "primary" })
   })
   .first();
 // → "bg-indigo-600 text-white"
-
-match({ variant: "ghost" as string })
-  .when("variant", { primary: "bg-indigo-600", secondary: "bg-slate-200" })
-  .all();
-// → [] (no match for "ghost")
 ```
 
 Result functions in a key switch receive the full input value, not just the matched key's value:
@@ -1812,13 +1804,6 @@ match({ variant: "primary", disabled: true })
 // → ["bg-indigo-600 text-white", "opacity-50 cursor-not-allowed"]
 ```
 
-Registering multiple `.when()` calls on the same key is valid — each is evaluated independently:
-
-```ts
-match({ variant: "a" }).when("variant", { a: "first-a" }).when("variant", { a: "second-a" }).all();
-// → ["first-a", "second-a"]
-```
-
 ---
 
 #### Terminal Methods
@@ -1844,23 +1829,18 @@ match({ a: true, b: true, c: false })
 
 ##### `.first()`
 
-Returns the first matched result, or `undefined` if nothing matched. Useful when matchers are mutually exclusive and only the highest-priority match is needed.
+Returns the first matched result, or `undefined` if nothing matched.
 
 ```ts
 match({ status: "error" }).when("status", { ok: "text-green-600", error: "text-red-600" }).first();
 // → "text-red-600"
-
-match({ x: false })
-  .when(({ x }) => x, "hit")
-  .first();
-// → undefined
 ```
 
 ---
 
 ##### `.last()`
 
-Returns the last matched result, or `undefined` if nothing matched. Useful when later matchers are intended as more specific overrides of earlier ones.
+Returns the last matched result, or `undefined` if nothing matched.
 
 ```ts
 match({ a: true, b: true })
@@ -1874,29 +1854,16 @@ match({ a: true, b: true })
 
 ##### `.resolve()`
 
-When `TOut` is `string` (the default), joins all matched results with a single space and returns a `string`. Returns an empty string if nothing matched — no leading or trailing spaces are added.
+When `TOut` is `string` (the default), joins all matched results with a single space and returns a `string`. Returns an empty string if nothing matched.
 
 When `TOut` is not `string`, behaves identically to `.all()` and returns `TOut[]`.
 
 ```ts
-// String output — joined with spaces
 match({ variant: "primary", disabled: true })
   .when("variant", { primary: "bg-indigo-600 text-white" })
   .when(({ disabled }) => disabled, "opacity-50")
   .resolve();
 // → "bg-indigo-600 text-white opacity-50"
-
-// Non-string output — returns array
-match<{ x: boolean }, number>({ x: true })
-  .when(({ x }) => x, 42)
-  .resolve();
-// → [42]
-
-// No matches — returns empty string (not undefined)
-match({ x: false })
-  .when(({ x }) => x, "hit")
-  .resolve();
-// → ""
 ```
 
 `.resolve()` is the most ergonomic terminal for the primary use case of composing Tailwind or UnoCSS class strings from a props object.
@@ -1908,8 +1875,6 @@ match({ x: false })
 Pass an explicit `TOut` type parameter to `match()` when producing values other than strings:
 
 ```ts
-import type { ReactNode } from "react";
-
 const icon = match<typeof props, ReactNode>({ status: "error" })
   .when("status", {
     ok:      <CheckIcon />,
@@ -1925,7 +1890,7 @@ When `TOut` is not `string`, `.resolve()` returns `TOut[]` rather than a joined 
 
 #### Behaviour Notes
 
-**Evaluation is lazy.** Matchers are not evaluated until a terminal method is called. The builder itself holds only the registered matcher descriptors.
+**Evaluation is lazy.** Matchers are not evaluated until a terminal method is called.
 
 **Numeric keys work.** JavaScript coerces numeric object keys to strings in property lookups, and the key switch form accounts for this:
 
@@ -1936,7 +1901,7 @@ match({ level: 3 as number })
 // → "text-lg"
 ```
 
-**Boolean values require the predicate form.** Booleans are not valid `PropertyKey` types in TypeScript, so a boolean prop cannot be used as a key switch key. Use a predicate instead:
+**Boolean values require the predicate form.** Booleans are not valid `PropertyKey` types in TypeScript, so a boolean prop cannot be used as a key switch key:
 
 ```ts
 // ✓ correct
@@ -1944,12 +1909,9 @@ match({ active: true })
   .when(({ active }) => active, "ring-2")
   .when(({ active }) => !active, "opacity-50")
   .first();
-
-// ✗ not possible — active: boolean is not a valid key switch key
-match({ active: true }).when("active", { true: "ring-2" });
 ```
 
-**Deeply nested values are accessible via result functions.** The predicate and result function always receive the full input object, including nested fields:
+**Deeply nested values are accessible via result functions.** The predicate and result function always receive the full input object:
 
 ```ts
 match({ user: { role: "admin" }, active: true })

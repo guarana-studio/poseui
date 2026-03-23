@@ -40,7 +40,7 @@ bun add @poseui/store
 
 ## Core concepts
 
-**`createStore(initialState, actions?)`** — creates a store. Pass initial state as a plain object as the first argument, and an optional actions creator as the second. The actions creator receives `set`, `get`, and the `api` object, and returns only the action functions. Returns a `StoreApi` with `getState`, `setState`, `subscribe`, `getInitialState`, and `bind`.
+**`createStore(initialState, actions?)`** — creates a store. Pass initial state as a plain object as the first argument, and an optional actions creator as the second. The actions creator receives `set`, `get`, and `getInitialState`, and returns only the action functions. Returns a `StoreApi` with `getState`, `setState`, `subscribe`, `getInitialState`, and `bind`.
 
 **No explicit generics needed** — TypeScript infers the state type from the first argument and the action types from the return value of the creator. No type annotations or curried forms required:
 
@@ -49,13 +49,25 @@ bun add @poseui/store
 const store = createStore({ count: 0, name: "Ada" });
 
 // State + actions — both inferred, no annotation needed
-const store = createStore({ count: 0 }, (set, _get, api) => ({
+const store = createStore({ count: 0 }, (set, _get, getInitialState) => ({
   inc: () => set((s) => ({ count: s.count + 1 })),
-  reset: () => set(api.getInitialState()),
+  reset: () => set(getInitialState()),
 }));
 
 store.getState().count; // number ✓
 store.getState().inc; // () => void ✓
+```
+
+**`get` returns the full state including actions** — actions can call each other via `get()`:
+
+```ts
+const store = createStore({ count: 0 }, (set, get) => ({
+  inc: () => set((s) => ({ count: s.count + 1 })),
+  incThenDouble: () => {
+    get().inc();
+    set((s) => ({ count: s.count * 2 }));
+  },
+}));
 ```
 
 ---

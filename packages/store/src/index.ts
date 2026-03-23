@@ -35,12 +35,19 @@ export interface StoreApi<T extends object> {
 // don't set other actions. This breaks the TActions self-reference that was
 // causing the inference deadlock, and lets TypeScript infer TActions purely
 // from the return type of the creator.
+//
+// `get` returns TState here but at runtime it returns TState & TActions, so
+// actions can freely call each other via get().someAction().
+//
+// `getInitialState` replaces the old `api` argument — it's the only thing
+// `get()` cannot provide, since get() returns live state not the snapshot
+// frozen at construction time.
 // ---------------------------------------------------------------------------
 
 type ActionsCreator<TState extends object, TActions extends object> = (
   set: SetState<TState>,
-  get: GetState<TState>,
-  api: StoreApi<TState>,
+  get: GetState<TState & TActions>,
+  getInitialState: () => TState,
 ) => TActions;
 
 // ---------------------------------------------------------------------------
@@ -139,11 +146,10 @@ export function createStore<TState extends object, TActions extends object = Rec
   };
 
   const resolvedActions = actionsCreator
-    ? // Cast: set/get are actually typed as T internally, TState is a safe view
-      actionsCreator(
+    ? actionsCreator(
         setState as unknown as SetState<TState>,
-        getState as unknown as GetState<TState>,
-        api as unknown as StoreApi<TState>,
+        getState,
+        () => resolvedInitialState as unknown as TState,
       )
     : ({} as TActions);
 

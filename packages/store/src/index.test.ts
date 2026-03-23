@@ -52,9 +52,9 @@ describe("createStore()", () => {
     expect(store.getState().double()).toBe(2);
   });
 
-  it("passes the api to the actions creator — actions can reference api.getInitialState()", () => {
-    const store = createStore({ count: 5 }, (set, _get, api) => ({
-      reset: () => set(api.getInitialState()),
+  it("actions can reference getInitialState to reset", () => {
+    const store = createStore({ count: 5 }, (set, _get, getInitialState) => ({
+      reset: () => set(getInitialState()),
     }));
     store.setState({ count: 99 });
     store.getState().reset();
@@ -512,6 +512,19 @@ describe("actions in creator", () => {
     expect(store.getState().double()).toBe(12);
   });
 
+  it("actions can call other actions via get", () => {
+    const store = createStore({ count: 0 }, (set, get) => ({
+      inc: () => set((s) => ({ count: s.count + 1 })),
+      incThenDouble: () => {
+        get().inc();
+        set((s) => ({ count: s.count * 2 }));
+      },
+    }));
+
+    store.getState().incThenDouble();
+    expect(store.getState().count).toBe(2); // (0+1)*2
+  });
+
   it("actions are preserved after setState", () => {
     const store = createStore({ count: 0 }, (set) => ({
       inc: () => set((s) => ({ count: s.count + 1 })),
@@ -531,6 +544,16 @@ describe("actions in creator", () => {
     store.subscribe(listener);
     store.getState().inc();
     expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it("getInitialState resets state from within an action", () => {
+    const store = createStore({ count: 5 }, (set, _get, getInitialState) => ({
+      reset: () => set(getInitialState()),
+    }));
+
+    store.setState({ count: 99 });
+    store.getState().reset();
+    expect(store.getState().count).toBe(5);
   });
 });
 

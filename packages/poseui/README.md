@@ -342,8 +342,7 @@ import { z } from "zod";
 
 const pose = createPose({ presets: [reactive] });
 
-const store = createStore((set) => ({
-  count: 0,
+const store = createStore({ count: 0 }, (set) => ({
   increment: () => set((s) => ({ count: s.count + 1 })),
 }));
 
