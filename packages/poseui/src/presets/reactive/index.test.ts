@@ -41,7 +41,7 @@ beforeEach(() => {});
 
 describe(".watch() — basic rendering", () => {
   it("renders immediately with the initial store state", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -56,7 +56,7 @@ describe(".watch() — basic rendering", () => {
   });
 
   it("re-renders when the watched slice changes", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -72,7 +72,7 @@ describe(".watch() — basic rendering", () => {
   });
 
   it("does NOT re-render when an unrelated slice changes", () => {
-    const store = createStore(() => ({ count: 0, name: "Ada" }));
+    const store = createStore({ count: 0, name: "Ada" });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -93,7 +93,7 @@ describe(".watch() — basic rendering", () => {
   });
 
   it("reflects multiple sequential state changes", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -115,7 +115,7 @@ describe(".watch() — basic rendering", () => {
 
 describe(".watch() — initial props from store", () => {
   it("uses store state as initial props at mount time", () => {
-    const store = createStore(() => ({ count: 7 }));
+    const store = createStore({ count: 7 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -131,7 +131,7 @@ describe(".watch() — initial props from store", () => {
   });
 
   it("caller-supplied mount props are overridden by store state", () => {
-    const store = createStore(() => ({ count: 42 }));
+    const store = createStore({ count: 42 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -152,7 +152,7 @@ describe(".watch() — initial props from store", () => {
 
 describe(".watch() — schema integration", () => {
   it("applies schema transforms on re-render", () => {
-    const store = createStore(() => ({ name: "  ada  " }));
+    const store = createStore({ name: "  ada  " });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -174,7 +174,7 @@ describe(".watch() — schema integration", () => {
 
 describe(".watch() — cleanup", () => {
   it("stops re-rendering after unmount", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -195,7 +195,7 @@ describe(".watch() — cleanup", () => {
   });
 
   it("calls events.mount() teardown on cleanup", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
     const { events, unmount } = makeEvents();
     const el = makeEl();
 
@@ -211,7 +211,7 @@ describe(".watch() — cleanup", () => {
   });
 
   it("is idempotent — calling cleanup twice does not throw", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -235,8 +235,8 @@ describe(".watch() — cleanup", () => {
 
 describe(".watch() — multiple stores", () => {
   it("re-renders when the first watched store changes", () => {
-    const countStore = createStore(() => ({ count: 0 }));
-    const nameStore = createStore(() => ({ name: "Ada" }));
+    const countStore = createStore({ count: 0 });
+    const nameStore = createStore({ name: "Ada" });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -253,8 +253,8 @@ describe(".watch() — multiple stores", () => {
   });
 
   it("re-renders when the second watched store changes", () => {
-    const countStore = createStore(() => ({ count: 0 }));
-    const nameStore = createStore(() => ({ name: "Ada" }));
+    const countStore = createStore({ count: 0 });
+    const nameStore = createStore({ name: "Ada" });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -271,8 +271,8 @@ describe(".watch() — multiple stores", () => {
   });
 
   it("renders with initial state from both stores", () => {
-    const countStore = createStore(() => ({ count: 10 }));
-    const nameStore = createStore(() => ({ name: "Ada" }));
+    const countStore = createStore({ count: 10 });
+    const nameStore = createStore({ name: "Ada" });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -288,8 +288,8 @@ describe(".watch() — multiple stores", () => {
   });
 
   it("tears down all subscriptions on cleanup", () => {
-    const countStore = createStore(() => ({ count: 0 }));
-    const nameStore = createStore(() => ({ name: "Ada" }));
+    const countStore = createStore({ count: 0 });
+    const nameStore = createStore({ name: "Ada" });
     const { events } = makeEvents();
     const el = makeEl();
 
@@ -317,8 +317,7 @@ describe(".watch() — multiple stores", () => {
 
 describe(".watch() + .on()", () => {
   it("click increments count and watch fires re-render", () => {
-    const store = createStore<{ count: number; increment: () => void }>()((set) => ({
-      count: 0,
+    const store = createStore({ count: 0 }, (set) => ({
       increment: () => set((s) => ({ count: s.count + 1 })),
     }));
 
@@ -347,7 +346,7 @@ describe(".watch() + .on()", () => {
 
 describe(".watch() — callable", () => {
   it("can be called directly to render an HTML string", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
 
     const component = pose
       .as("span")
@@ -360,7 +359,7 @@ describe(".watch() — callable", () => {
   });
 
   it("can be nested as a child of another PoseElement", () => {
-    const store = createStore(() => ({ count: 0 }));
+    const store = createStore({ count: 0 });
 
     const inner = pose
       .as("span")
